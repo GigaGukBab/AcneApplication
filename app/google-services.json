@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "890013285174",
+    "project_id": "acneapplication",
+    "storage_bucket": "acneapplication.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:890013285174:android:12a1bf3488dcee996a1197",
+        "android_client_info": {
+          "package_name": "com.example.acneapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "890013285174-1upfjcgo9fdunaabgnssfe727cmdqv87.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.acneapplication",
+            "certificate_hash": "a656245878a3773e7fe0866d8e45521f4518b3f2"
+          }
+        },
+        {
+          "client_id": "890013285174-3lgjt5t0dl6fjubiamk6ndbgjmriiacv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLwQQ1gdtdTudVyLTFjxH_jVcrRN7THOU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "890013285174-3lgjt5t0dl6fjubiamk6ndbgjmriiacv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
