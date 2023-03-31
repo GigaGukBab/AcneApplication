@@ -18,6 +18,9 @@
         android:theme="@style/Theme.AcneApplication"
         tools:targetApi="31">
         <activity
+            android:name=".FireStoreEx"
+            android:exported="false" />
+        <activity
             android:name=".GoogleLoginActivity"
             android:exported="true">
             <intent-filter>
@@ -38,7 +41,6 @@
         <activity
             android:name=".MainMenuActivity"
             android:screenOrientation="portrait" />
-
 
         <!-- 추가해야 하는 부분 -->
         <provider
