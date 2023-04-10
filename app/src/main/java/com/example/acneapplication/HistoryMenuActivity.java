@@ -30,7 +30,7 @@ public class HistoryMenuActivity extends AppCompatActivity {
         setContentView(R.layout.activity_history_menu);
 
 
-        recyclerView = (RecyclerView) findViewById(R.id.recyclerview);
+        recyclerView = (RecyclerView) findViewById(R.id.histView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         classifications = new ArrayList<>();
 
