@@ -41,11 +41,6 @@ public class MainMenuActivity extends AppCompatActivity {
             startActivity(i);
         });
 
-        Button fireStoreExBtn = findViewById(R.id.fireStoreExampleBtn);
-        fireStoreExBtn.setOnClickListener(view -> {
-            Intent i = new Intent(MainMenuActivity.this, FireStoreEx.class);
-            startActivity(i);
-        });
 
     }
 
