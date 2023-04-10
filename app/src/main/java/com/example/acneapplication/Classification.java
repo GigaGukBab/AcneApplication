@@ -5,47 +5,45 @@ import androidx.annotation.Keep;
 @Keep
 public class Classification {
     private String id;
-    private String imageName;
-    private String resultStr;
-    private String timeStamp;
+    private String result;
+    private String timestamp;
 
-    public Classification(String id, String imageName, String resultStr, String timeStamp) {
+    private String documentId;
+
+    // 기본 생성자 추가
+    public Classification() {
+
+    }
+
+    public Classification(String id, String result, String timestamp) {
         this.id = id;
-        this.imageName = imageName;
-        this.resultStr = resultStr;
-        this.timeStamp = timeStamp;
+        this.result = result;
+        this.timestamp = timestamp;
+        this.documentId = documentId;
     }
 
-    // Getter and setter methods
-    public String getId() {
-        return id;
+    // 필드에 대한 getter와 setter 메서드를 추가합니다.
+    public String getResult() {
+        return result;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setResult(String result) {
+        this.result = result;
     }
 
-    public String getImageName() {
-        return imageName;
+    public String getTimestamp() {
+        return timestamp;
     }
 
-    public void setImageName(String imageName) {
-        this.imageName = imageName;
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
     }
 
-    public String getResultStr() {
-        return resultStr;
+    public String getDocumentId() {
+        return documentId;
     }
 
-    public void setResultStr(String resultStr) {
-        this.resultStr = resultStr;
-    }
-
-    public String getTimeStamp() {
-        return timeStamp;
-    }
-
-    public void setTimeStamp(String timeStamp) {
-        this.timeStamp = timeStamp;
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
     }
 }

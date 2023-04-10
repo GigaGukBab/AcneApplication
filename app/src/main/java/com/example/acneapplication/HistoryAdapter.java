@@ -16,10 +16,18 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     private List<Classification> classifications;
     private OnDeleteClickListener onDeleteClickListener;
 
+
     public HistoryAdapter(List<Classification> classifications, OnDeleteClickListener onDeleteClickListener) {
         this.classifications = classifications;
         this.onDeleteClickListener = onDeleteClickListener;
     }
+
+
+    public void setOnDeleteClickListener(OnDeleteClickListener listener) {
+        this.onDeleteClickListener = onDeleteClickListener;
+    }
+
+
     // In your HistoryAdapter class
     public void setClassifications(List<Classification> classifications) {
         this.classifications = classifications;
@@ -37,11 +45,9 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Classification classification = classifications.get(position);
-        holder.resultTextView.setText(classification.getResultStr());
-        holder.timestampTextView.setText(classification.getTimeStamp());
-
-        // Set onDeleteClickListener to the delete button
-        holder.deleteButton.setOnClickListener(view -> onDeleteClickListener.onDeleteClick(classification));
+        holder.resultTextView.setText(classification.getResult());
+        holder.timestampTextView.setText(classification.getTimestamp());
+        holder.deleteButton.setOnClickListener(v -> onDeleteClickListener.onDeleteClick(classification));
     }
 
     @Override
