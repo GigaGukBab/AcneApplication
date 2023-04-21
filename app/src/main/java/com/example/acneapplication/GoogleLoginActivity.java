@@ -81,6 +81,7 @@ public class GoogleLoginActivity extends AppCompatActivity implements GoogleApiC
                             Toast.makeText(GoogleLoginActivity.this, "로그인 성공", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(getApplicationContext(), MainMenuActivity.class);
                             intent.putExtra("nickname", account.getDisplayName());
+                            intent.putExtra("profile_picture", account.getPhotoUrl().toString());
                             // String.valueOf() : 특정 자료형을 String 형태로 변환
                             // intent.putExtra(("video", String.valueOf(account.getDisplayName(MainMenuActivity))))
 

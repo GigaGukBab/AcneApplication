@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_mypage"
+            android:icon="@drawable/ic_menu_mypage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:title="마이페이지" />
+        <item
+            android:id="@+id/nav_history"
+            android:icon="@drawable/ic_menu_history"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:title="내 여드름 분류 내역 조회" />
+        <item
+            android:id="@+id/nav_acne_treatment"
+            android:icon="@drawable/ic_menu_acne_treatment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:title="여드름 종류별 관리법 보러가기" />
+        <item
+            android:id="@+id/nav_bookmark"
+            android:icon="@drawable/ic_menu_bookmark"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:title="북마크/즐겨찾기" />
+    </group>
+
+</menu>
