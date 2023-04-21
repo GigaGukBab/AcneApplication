@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -37,19 +38,22 @@ public class HistoryMenuActivity extends AppCompatActivity {
 
         // 이름순 버튼 클릭 리스너 설정
         Button nameBtn = findViewById(R.id.nameBtn);
+        Button dateBtn = findViewById(R.id.dateBtn);
         nameBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 loadDataFromFirestore("result", Query.Direction.ASCENDING);
+                nameBtn.setBackgroundColor(ContextCompat.getColor(HistoryMenuActivity.this, R.color.selected_button_text));
+                dateBtn.setBackgroundColor(ContextCompat.getColor(HistoryMenuActivity.this, R.color.default_button_text));
             }
         });
-
         // 날짜순 버튼 클릭 리스너 설정
-        Button dateBtn = findViewById(R.id.dateBtn);
         dateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 loadDataFromFirestore("timestamp", Query.Direction.DESCENDING); // 날짜 필드의 이름을 "date"라고 가정합니다.
+                nameBtn.setBackgroundColor(ContextCompat.getColor(HistoryMenuActivity.this, R.color.default_button_text));
+                dateBtn.setBackgroundColor(ContextCompat.getColor(HistoryMenuActivity.this, R.color.selected_button_text));
             }
         });
 

@@ -8,4 +8,8 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="side_nav_bar">#FF9800</color>
+
+    <color name="selected_button_text">#A9A9A9</color> <!-- 선택된 버튼의 텍스트 색상 -->
+    <color name="default_button_text">#FFFFFF</color> <!-- 기본 버튼의 텍스트 색상 -->
+
 </resources>
