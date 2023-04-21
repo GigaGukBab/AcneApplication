@@ -46,4 +46,5 @@ public class Classification {
     public void setDocumentId(String documentId) {
         this.documentId = documentId;
     }
+
 }

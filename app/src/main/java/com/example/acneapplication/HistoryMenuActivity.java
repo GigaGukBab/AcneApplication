@@ -49,7 +49,7 @@ public class HistoryMenuActivity extends AppCompatActivity {
         dateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                loadDataFromFirestore("timestamp", Query.Direction.ASCENDING); // 날짜 필드의 이름을 "date"라고 가정합니다.
+                loadDataFromFirestore("timestamp", Query.Direction.DESCENDING); // 날짜 필드의 이름을 "date"라고 가정합니다.
             }
         });
 
@@ -96,10 +96,9 @@ public class HistoryMenuActivity extends AppCompatActivity {
         // Initialize the Firestore instance
         firestore = FirebaseFirestore.getInstance();
 
-        loadDataFromFirestore("timestamp", Query.Direction.ASCENDING);
+        loadDataFromFirestore("timestamp", Query.Direction.DESCENDING);
 
     }
-
 
     private void loadDataFromFirestore(String orderByField, Query.Direction direction) {
         firestore.collection("classifications")
