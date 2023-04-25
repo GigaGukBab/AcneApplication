@@ -61,9 +61,6 @@ public class HistoryMenuActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         classifications = new ArrayList<>();
 
-        // historyAdapter 초기화
-        historyAdapter = new HistoryAdapter(classifications, onDeleteClickListener);
-
         // Set an empty adapter by default
         onDeleteClickListener = new HistoryAdapter.OnDeleteClickListener() {
             @Override

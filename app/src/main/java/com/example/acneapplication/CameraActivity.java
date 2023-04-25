@@ -1,7 +1,9 @@
 package com.example.acneapplication;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.ImageDecoder;
@@ -16,9 +18,12 @@ import android.util.Pair;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -38,6 +43,7 @@ public class CameraActivity extends AppCompatActivity {
 
     public static final String TAG = "[IC]CameraActivity";
     public static final int CAMERA_IMAGE_REQUEST_CODE = 1;
+    private static final int PERMISSIONS_REQUEST_CODE = 100;
     private static final String KEY_SELECTED_URI = "KEY_SELECTED_URI";
 
     private ClassifierWithModel cls;
@@ -45,6 +51,17 @@ public class CameraActivity extends AppCompatActivity {
     private TextView textView;
 
     Uri selectedImageUri;
+
+    private void checkCameraPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            // 카메라 권한이 없는 경우, 사용자에게 권한 요청
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, PERMISSIONS_REQUEST_CODE);
+        } else {
+            // 카메라 권한이 있는 경우, 카메라에서 이미지를 가져오는 기능을 호출
+            getImageFromCamera();
+        }
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +89,21 @@ public class CameraActivity extends AppCompatActivity {
                 selectedImageUri = uri;
         }
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSIONS_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // 권한이 허용되면 카메라에서 이미지를 가져오는 기능을 호출
+                getImageFromCamera();
+            } else {
+                // 권한이 거부된 경우, 사용자에게 토스트 메시지를 표시
+                Toast.makeText(this, "카메라 접근 권한이 필요합니다.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {

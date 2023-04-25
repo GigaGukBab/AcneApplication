@@ -20,6 +20,7 @@ class FetchVideoTask extends AsyncTask<String, Void, List<SearchResult>> {
     private WebView webView;
     private TextView channelSource;
 
+
     @Override
     protected List<SearchResult> doInBackground(String... keywords) {
         try {
@@ -60,10 +61,11 @@ class FetchVideoTask extends AsyncTask<String, Void, List<SearchResult>> {
 
             // WebView 업데이트
             String embedUrl = "https://www.youtube.com/embed/" + videoId;
-            webView.loadData("<iframe width=\"100%\" height=\"100%\" src=\"" + embedUrl + "\" frameborder=\"0\" allowfullscreen></iframe>", "text/html", "utf-8");
+
+            webView.loadData("<iframe width=\"100%\" height=\"100%\" src=\"" + embedUrl + "?autoplay=1\" frameborder=\"0\" allowfullscreen></iframe>", "text/html", "utf-8");
 
             // 출처 TextView 업데이트
-            channelSource.setText("출처: https://www.youtube.com/channel/" + channelId);
+            channelSource.setText(channelTitle);
         } else {
             // 동영상이 없거나 검색 결과가 없는 경우 처리
             webView.loadData("동영상을 불러오지 못했습니다.", "text/html", "utf-8");

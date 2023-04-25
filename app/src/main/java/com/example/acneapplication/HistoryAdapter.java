@@ -7,7 +7,6 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.WindowDecorActionBar;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -71,7 +70,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         return classifications.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView date;
         TextView imageName;
@@ -87,6 +86,21 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
             deleteButton = itemView.findViewById(R.id.delete_button);
             date = itemView.findViewById(R.id.timestamp_textview); // XML 레이아웃에서 TextView의 ID와 일치하도록 설정해주세요.
             result = itemView.findViewById(R.id.result_textview); // XML 레이아웃에서 TextView의 ID와 일치하도록 설정해주세요.
+
+            deleteButton = itemView.findViewById(R.id.delete_button);
+
+            // 이 부분을 추가합니다.
+            deleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (onDeleteClickListener != null) {
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+                            onDeleteClickListener.onDeleteClick(classifications.get(position));
+                        }
+                    }
+                }
+            });
         }
     }
 

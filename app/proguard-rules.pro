@@ -23,3 +23,5 @@
 -keepclassmembers class com.example.acneapplication.Classification {
     public <init>(...);
 }
+
+-keep class androidx.appcompat.widget.** { *; }

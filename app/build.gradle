@@ -1,6 +1,6 @@
 plugins {
     id 'com.android.application'
-    id 'com.google.gms.google-services' // <- 이 문장만 추가한다
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -34,35 +34,31 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'com.google.android.libraries.places:places:3.1.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
-    implementation 'org.tensorflow:tensorflow-lite:2.4.0'           // 텐서플로 라이트 라이브러리 의존성 추가
-    implementation 'org.tensorflow:tensorflow-lite-support:0.1.0'   // 텐서플로 라이트 라이브러리 의존성 추가
+    implementation 'org.tensorflow:tensorflow-lite:2.4.0'
+    implementation 'org.tensorflow:tensorflow-lite-support:0.1.0'
 
     implementation 'com.google.android.gms:play-services-auth:20.5.0'
 
-    implementation 'com.google.firebase:firebase-analytics:21.2.2' // 파이어베이스 앱 분석
-    implementation 'com.google.firebase:firebase-core:21.1.1' // 파이버베이스 코어
-    implementation 'com.google.firebase:firebase-auth:21.3.0' // 파이어베이스 인증1
-    // implementation 'com.google.firebaseui:firebase-ui-auth:4.2.1' //파이어베이스 인증2
-    implementation 'com.github.bumptech.glide:glide:4.15.1' // 글라이드 이미지 설정
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0' // 글라이드 이미지 로딩 2
+    implementation 'com.google.firebase:firebase-analytics:21.2.2'
+    implementation 'com.google.firebase:firebase-core:21.1.1'
+    implementation 'com.google.firebase:firebase-auth:21.3.0'
 
+    implementation 'com.github.bumptech.glide:glide:4.15.1'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
 
-    // Import the BoM for the Firebase platform
     implementation platform('com.google.firebase:firebase-bom:31.2.3')
     implementation 'com.google.firebase:firebase-storage'
-
     implementation 'com.google.firebase:firebase-database'
 
     implementation 'androidx.room:room-runtime:2.5.1'
     annotationProcessor 'androidx.room:room-compiler:2.5.1'
 
-    // Declare the dependency for the Cloud Firestore library
-    // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation 'com.google.firebase:firebase-firestore'
 
     implementation 'androidx.annotation:annotation:1.6.0'
@@ -70,14 +66,17 @@ dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.8.10'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.10'
 
-    implementation 'com.google.android.material:material:1.8.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4' // 버전은 필요에 따라 다를 수 있습니다.
-
-    // Glide 이미지 로딩 라이브러리
-    implementation 'com.github.bumptech.glide:glide:4.15.1'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
-
     implementation 'com.google.api-client:google-api-client:1.31.5'
     implementation 'com.google.api-client:google-api-client-gson:1.31.5'
     implementation 'com.google.apis:google-api-services-youtube:v3-rev222-1.25.0'
+
+    // Google Maps and Places API
+//    implementation 'com.google.android.gms:play-services-maps:17.1.0'
+//    implementation 'com.google.android.gms:play-services-location:21.0.1'
+
+    implementation 'com.naver.maps:map-sdk:3.16.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+
+
 }

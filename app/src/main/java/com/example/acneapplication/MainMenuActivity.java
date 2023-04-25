@@ -1,15 +1,18 @@
 package com.example.acneapplication;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -40,6 +43,11 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
     private TextView profileName;
     private WebView webView;
     private TextView channelSource;
+
+    // 멤버 변수 추가
+    private FrameLayout customViewContainer;
+    private WebChromeClient.CustomViewCallback customViewCallback;
+    private View customView;
 
     // FetchVideoTask를 내부 클래스로 이동합니다.
     private class FetchVideoTask extends AsyncTask<String, Void, List<SearchResult>> {
@@ -88,7 +96,29 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
                 webView.loadData("<iframe width=\"100%\" height=\"100%\" src=\"" + embedUrl + "\" frameborder=\"0\" allowfullscreen></iframe>", "text/html", "utf-8");
 
                 // 출처 TextView 업데이트
-                channelSource.setText("출처: https://www.youtube.com/channel/" + channelId);
+                channelSource.setText("출처: " + channelTitle);
+
+//                // YouTube 앱으로 이동하는 버튼 생성
+//                Button openYouTubeButton = new Button(webView.getContext());
+//                openYouTubeButton.setText("YouTube 앱에서 보기");
+//                openYouTubeButton.setOnClickListener(view -> {
+//                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=" + videoId));
+//                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    view.getContext().startActivity(intent);
+//                });
+//
+//                // 기존 레이아웃에 버튼 추가
+//                ((ViewGroup) webView.getParent()).addView(openYouTubeButton);
+
+                // YouTube 앱으로 이동하는 버튼 찾기
+                Button openYouTubeButton = ((ViewGroup) webView.getParent()).findViewById(R.id.open_youtube_button);
+
+                // 버튼에 클릭 리스너 추가
+                openYouTubeButton.setOnClickListener(view -> {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=" + videoId));
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    view.getContext().startActivity(intent);
+                });
             } else {
                 // 동영상이 없거나 검색 결과가 없는 경우 처리
                 webView.loadData("동영상을 불러오지 못했습니다.", "text/html", "utf-8");
@@ -101,6 +131,9 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
+
+        // customViewContainer 초기화
+        customViewContainer = findViewById(R.id.custom_view_container);
 
         Intent intent = getIntent();
         String nickname = intent.getStringExtra("nickname"); //GoogleLoginActivity로부터 nickname 전달받음
@@ -156,6 +189,7 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
         webSettings.setBuiltInZoomControls(true);
         webSettings.setDisplayZoomControls(false);
         webSettings.setMediaPlaybackRequiresUserGesture(false);
+        webSettings.setAllowUniversalAccessFromFileURLs(true); // 이 부분 추가
         webView.setWebChromeClient(new WebChromeClient());
         webView.setWebViewClient(new WebViewClient());
 
@@ -174,6 +208,27 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
         // FetchVideoTask 실행
         String keyword = generateDailyKeyword(); // 매일 다른 검색어 생성
         new FetchVideoTask().execute(keyword);
+
+        // WebView 설정 및 웹뷰 클라이언트 설정
+        webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onShowCustomView(View view, CustomViewCallback callback) {
+                customViewContainer.addView(view);
+                customView = view;
+                customViewCallback = callback;
+                webView.setVisibility(View.GONE);
+                customViewContainer.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onHideCustomView() {
+                webView.setVisibility(View.VISIBLE);
+                customViewContainer.setVisibility(View.GONE);
+                customViewContainer.removeView(customView);
+                customViewCallback.onCustomViewHidden();
+                customView = null;
+            }
+        });
     }
 
     private String generateDailyKeyword() {
@@ -222,6 +277,9 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
                 // 구현 중
             case R.id.nav_acne_treatment:
                 startActivity(new Intent(MainMenuActivity.this, AcneTreatmentActivity.class));
+                break;
+            case R.id.nav_clinicRecommend:
+                startActivity(new Intent(MainMenuActivity.this, AcneClinicRecommendationActivity.class));
                 break;
                 // 미구현
 //            case R.id.nav_mypage:

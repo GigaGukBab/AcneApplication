@@ -1,7 +1,9 @@
 package com.example.acneapplication;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.ImageDecoder;
@@ -16,7 +18,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -34,9 +39,32 @@ public class GalleryActivity extends AppCompatActivity {
 
     public static final String TAG = "[IC]GalleryActivity";
     public static final int GALLERY_IMAGE_REQUEST_CODE = 1;
+    public static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 2;
     private ClassifierWithModel cls;
     private ImageView imageView;
     private TextView textView;
+
+    private Runnable onPermissionGranted;
+
+    private void requestReadExternalStoragePermission(Runnable onPermissionGranted) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // 권한 요청에 대한 설명을 제공해야 하는 경우
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                // 사용자에게 권한이 필요한 이유를 설명하는 대화상자를 표시한 후, 권한을 다시 요청하세요.
+            } else {
+                // 권한을 요청합니다.
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+            }
+        }
+
+        // 콜백을 저장합니다.
+        this.onPermissionGranted = onPermissionGranted;
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +74,14 @@ public class GalleryActivity extends AppCompatActivity {
         firestore = FirebaseFirestore.getInstance();
 
         Button selectBtn = findViewById(R.id.selectBtn);
-        selectBtn.setOnClickListener(v -> getImageFromGallery());
+        selectBtn.setOnClickListener(v -> {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                requestReadExternalStoragePermission(this::getImageFromGallery);
+            } else {
+                getImageFromGallery();
+            }
+        });
+
 
         imageView = findViewById(R.id.imageView);
         textView = findViewById(R.id.textView);
@@ -58,6 +93,28 @@ public class GalleryActivity extends AppCompatActivity {
             ioe.printStackTrace();
         }
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // 권한이 허용되었습니다.
+                    if (onPermissionGranted != null) {
+                        onPermissionGranted.run();
+                    }
+                } else {
+                    // 권한이 거부되었습니다.
+                    // 앱의 기능에 필요한 경우, 사용자에게 이를 알리는 메시지를 표시하거나 기능을 비활성화하세요.
+                }
+                return;
+            }
+            // 다른 권한 요청에 대한 처리를 여기에 추가하세요.
+        }
+    }
+
+
 
     private void getImageFromGallery(){
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT).setType("image/*");

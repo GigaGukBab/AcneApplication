@@ -8,6 +8,8 @@ public class Classification {
     private String result;
     private String timestamp;
 
+    private String imageName;
+
     private String documentId;
 
     // 기본 생성자 추가
@@ -15,11 +17,28 @@ public class Classification {
 
     }
 
-    public Classification(String id, String result, String timestamp) {
+    public Classification(String id, String result, String timestamp,String documentId, String imageName) {
         this.id = id;
         this.result = result;
         this.timestamp = timestamp;
         this.documentId = documentId;
+        this.imageName = imageName;
+    }
+
+    public String getImageName() {
+        return imageName;
+    }
+
+    public void setImageName(String imageName) {
+        this.imageName = imageName;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     // 필드에 대한 getter와 setter 메서드를 추가합니다.
