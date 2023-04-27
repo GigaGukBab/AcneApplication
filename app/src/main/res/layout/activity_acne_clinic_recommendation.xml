@@ -6,7 +6,18 @@
     android:layout_height="match_parent"
     tools:context=".AcneClinicRecommendationActivity">
 
-    <androidx.fragment.app.FragmentContainerView android:layout_width="match_parent"
+    <Button
+        android:id="@+id/search_nearby_clinics_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="주변 피부과 찾기"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/map" />
+
+    <androidx.fragment.app.FragmentContainerView
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/map"
         android:name="com.naver.maps.map.MapFragment"

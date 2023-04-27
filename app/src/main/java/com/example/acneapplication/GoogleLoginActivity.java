@@ -25,7 +25,6 @@ import com.google.firebase.auth.GoogleAuthProvider;
 
 public class GoogleLoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
-    private SignInButton google_lgbtn; // 구글 로그인 버튼
     private FirebaseAuth auth; // 파이버베이스 인증 객체
     private GoogleApiClient googleApiClient; // 구글 API 클라이언트 객체
     private static final int REQ_SIGN_GOOGLE = 100; // 구글 로그인 결과 코드
@@ -47,7 +46,8 @@ public class GoogleLoginActivity extends AppCompatActivity implements GoogleApiC
 
         auth = FirebaseAuth.getInstance(); // 파이어베이스 인증 객체 초기화
 
-        google_lgbtn = findViewById(R.id.google_lgbtn);
+        // 구글 로그인 버튼
+        SignInButton google_lgbtn = findViewById(R.id.google_lgbtn);
         google_lgbtn.setOnClickListener(new View.OnClickListener() { // 구글 로그인 버튼을 클릭했을 때 이곳을 수행
             @Override
             public void onClick(View view) {
@@ -59,17 +59,31 @@ public class GoogleLoginActivity extends AppCompatActivity implements GoogleApiC
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) { // 구글 로그인 인증을 요청했을 때 결과 값을 되돌려 받는 곳
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == REQ_SIGN_GOOGLE) {
-            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            if(result.isSuccess()) { // 인증 결과가 성공하면
-                GoogleSignInAccount account = result.getSignInAccount(); // account 라는 데이터는 구글로그인 정보를 담고 있음 (ex. 닉네임, 프로필 사진, 이메일 주소... 등)
-                resultLogin(account); // 로그인 결과 값 출력하라는 메소드
+        if (requestCode == REQ_SIGN_GOOGLE) {
+            if (data != null) {
+                GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+                if (result != null && result.isSuccess()) {
+                    GoogleSignInAccount account = result.getSignInAccount();
+                    if (account != null) {
+                        resultLogin(account);
+                    } else {
+                        // account가 null인 경우 처리
+                        Toast.makeText(GoogleLoginActivity.this, "계정 정보를 가져오지 못했습니다. 다시 시도해 주세요.", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    // 로그인 실패 처리
+                    Toast.makeText(GoogleLoginActivity.this, "로그인에 실패했습니다. 다시 시도해 주세요.", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                // data가 null인 경우 처리
+                Toast.makeText(GoogleLoginActivity.this, "로그인 요청 결과가 없습니다. 다시 시도해 주세요.", Toast.LENGTH_SHORT).show();
             }
         }
     }
+
 
     private void resultLogin(GoogleSignInAccount account) {
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);

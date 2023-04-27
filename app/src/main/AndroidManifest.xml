@@ -7,12 +7,13 @@
         android:required="true" />
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
 
     <application
         android:allowBackup="true"
@@ -27,9 +28,6 @@
             android:name=".AcneClinicRecommendationActivity"
             android:exported="false" />
 
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyAphl153EOFlmjitCEPHog8Mp6KS1dysHQ" />
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
             android:value="qqpxkmsi4j" />
@@ -52,13 +50,9 @@
             android:screenOrientation="fullSensor" />
         <activity
             android:name=".GoogleLoginActivity"
-            android:exported="true" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:exported="true" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+
         <activity
             android:name=".CameraActivity"
             android:screenOrientation="fullSensor" />
@@ -67,7 +61,15 @@
             android:screenOrientation="fullSensor" />
         <activity
             android:name=".MainMenuActivity"
-            android:screenOrientation="fullSensor" />
+            android:screenOrientation="fullSensor"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <provider
             android:name="androidx.core.content.FileProvider"
