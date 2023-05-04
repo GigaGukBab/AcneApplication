@@ -1,119 +1,371 @@
 package com.example.acneapplication;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.bumptech.glide.Glide;
+import com.google.android.material.navigation.NavigationView;
+import com.google.gson.Gson;
 import com.naver.maps.geometry.LatLng;
-import com.naver.maps.map.CameraPosition;
 import com.naver.maps.map.LocationTrackingMode;
 import com.naver.maps.map.MapFragment;
 import com.naver.maps.map.NaverMap;
 import com.naver.maps.map.OnMapReadyCallback;
+import com.naver.maps.map.overlay.Align;
 import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.util.FusedLocationSource;
 
+import org.osgeo.proj4j.BasicCoordinateTransform;
+import org.osgeo.proj4j.CRSFactory;
+import org.osgeo.proj4j.CoordinateReferenceSystem;
+import org.osgeo.proj4j.ProjCoordinate;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
+
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-// LOCATION_PERMISSION_REQUEST_CODE 상수를 생성하여 위치 권한 요청 코드를 정의합니다.
-// onCreate 메서드에서 위치 권한이 이미 부여되었는지 확인하고, 그렇지 않은 경우 권한을 요청합니다.
-// onRequestPermissionsResult 메서드에서 위치 권한 요청 결과를 처리합니다. 권한이 승인되면 토스트 메시지로 알립니다.
-// onMapReady 메서드에서 Naver 지도의 위치 추적 모드를 사용자의 위치를 따르도록 설정합니다.
-// 사용자의 위치가 변경될 때마다 NaverMap.OnLocationChangeListener를 사용하여 콜백을 설정하고, 사용자 위치에 마커를 추가합니다.
-//  addMarkerAtLocation 메서드는 지정된 위치에 마커를 추가하는 역할을 합니다.
-
 public class AcneClinicRecommendationActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    private NaverMap naverMap;
-    private Button searchNearbyClinicsButton;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1000;
     private FusedLocationSource locationSource;
+    private DrawerLayout drawerLayout;
+    private ActionBarDrawerToggle actionBarDrawerToggle;
 
-    private static final LatLng DEFAULT_LOCATION = new LatLng(37.5665, 126.9780); // Seoul, South Korea
-    private FusedLocationProviderClient fusedLocationClient;
-
-    private NaverApiService naverApiService;
+    private NaverMap naverMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_acne_clinic_recommendation);
 
-        searchNearbyClinicsButton = findViewById(R.id.search_nearby_clinics_button);
-
         locationSource = new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        checkLocationPermission();
 
-        MapFragment mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        if (mapFragment != null) {
-            mapFragment.getMapAsync(this);
+        // 사용자 프로필 이미지, 닉네임 처리 부분 코드
+        Intent intent = getIntent();
+        String nickname = intent.getStringExtra("nickname"); //GoogleLoginActivity로부터 nickname 전달받음
+        String profilePictureUrl = intent.getStringExtra("profile_picture");
+
+        // 사용자 이름 및 프로필 사진 가져오기
+        String displayName = getIntent().getStringExtra("displayName");
+        String photoUrl = getIntent().getStringExtra("photoUrl");
+
+        // NavigationView에서 헤더 뷰 참조 가져오기
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        View headerView = navigationView.getHeaderView(0);
+        TextView navHeaderTextView = headerView.findViewById(R.id.nav_header_nickname);
+        ImageView navHeaderImageView = headerView.findViewById(R.id.nav_header_profile_picture);
+
+        navHeaderTextView.setText(nickname);
+
+        // 이미지 로딩 라이브러리인 Glide를 사용하여 프로필 사진을 로드하고 ImageView에 설정
+        Glide.with(this)
+                .load(profilePictureUrl)
+                .circleCrop()
+                .into(navHeaderImageView);
+
+        // 사용자 이름 및 프로필 사진 설정
+        if (displayName != null) {
+            navHeaderTextView.setText(displayName);
+        }
+        if (photoUrl != null) {
+            Glide.with(this)
+                    .load(photoUrl)
+                    .circleCrop()
+                    .into(navHeaderImageView);
         }
 
-        // Naver API Service 초기화
+        // onCreate 메서드 내에 아래 코드 추가
+        drawerLayout = findViewById(R.id.drawer_layout);
+        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+
+        drawerLayout.addDrawerListener(actionBarDrawerToggle);
+        actionBarDrawerToggle.syncState();
+
+        // 홈 버튼을 사용하여 Drawer를 열고 닫을 수 있도록 설정
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+
+        navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+
+            Intent intent1;
+            switch (id) {
+//                    case R.id.nav_mypage:
+//                        intent = new Intent(AcneClinicRecommendationActivity.this, MyPageActivity.class);
+//                        startActivity(intent);
+//                        break;
+                case R.id.nav_history:
+                    Intent historyMenuIntent = new Intent(AcneClinicRecommendationActivity.this, HistoryMenuActivity.class);
+                    historyMenuIntent.putExtra("nickname", nickname);
+                    historyMenuIntent.putExtra("profile_picture", profilePictureUrl);
+                    historyMenuIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
+                    historyMenuIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
+                    startActivity(historyMenuIntent);
+                    break;
+                case R.id.nav_acne_treatment:
+                    Intent AcneTreatmentMenuIntent = new Intent(AcneClinicRecommendationActivity.this, AcneTreatmentActivity.class);
+                    AcneTreatmentMenuIntent.putExtra("nickname", nickname);
+                    AcneTreatmentMenuIntent.putExtra("profile_picture", profilePictureUrl);
+                    AcneTreatmentMenuIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
+                    AcneTreatmentMenuIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
+                    startActivity(AcneTreatmentMenuIntent);
+                    break;
+//                    case R.id.nav_bookmark:
+//                        intent = new Intent(AcneClinicRecommendationActivity.this, BookmarkActivity.class);
+//                        startActivity(intent);
+//                        break;
+                case R.id.nav_clinicRecommend:
+                    break;
+                default:
+                    break;
+            }
+            drawerLayout.closeDrawer(GravityCompat.START);
+            return true;
+        });
+        // 사용자 프로필 이미지, 닉네임 처리 부분 코드 종료료
+
+
+
+        // 지도초기화
+        MapFragment mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        assert mapFragment != null;
+        mapFragment.getMapAsync(this);
+
+
+    }
+
+    public static class SkinClinic {
+        String title;
+        String link;
+        String category;
+        String description;
+        String telephone;
+        String address;
+        String roadAddress;
+        String mapx;
+        String mapy;
+    }
+
+    public static class SkinClinicSearchResult {
+        String lastBuildDate;
+        int total;
+        int start;
+        int display;
+        List<SkinClinic> items;
+    }
+
+
+//    private void searchSkinClinics(double latitude, double longitude) {
+//        String clientId = "OLHj8Um3kgdqHaFA1xiF";
+//        String clientSecret = "Qc0bvWFohc";
+//        String query = "피부과";
+//        int display = 20; // 반환 결과 개수 설정
+//        int radius = 20000; // 검색 반경 설정 (단위: m)
+//
+//        Retrofit retrofit = new Retrofit.Builder()
+//                .baseUrl("https://openapi.naver.com/")
+//                .addConverterFactory(GsonConverterFactory.create())
+//                .build();
+//
+//        NaverPlaceApiService service = retrofit.create(NaverPlaceApiService.class);
+//
+//        Call<ResponseBody> call = service.searchSkinClinics(clientId, clientSecret, query, display, radius, latitude, longitude);
+//        call.enqueue(new Callback<ResponseBody>() {
+//            @Override
+//            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+//                if (response.isSuccessful()) {
+//                    try {
+//                        String responseBody = response.body().string();
+//                        Gson gson = new Gson();
+//                        SkinClinicSearchResult searchResult = gson.fromJson(responseBody, SkinClinicSearchResult.class);
+//
+//                        // 여기에 로그 출력 추가
+//                        for (SkinClinic clinic : searchResult.items) {
+//                            Log.d("SkinClinicSearch", "Clinic: " + clinic.title + ", Coordinates: (" + clinic.mapx + ", " + clinic.mapy + ")");
+//                        }
+//
+//                        // 지도에 피부과 마커 추가
+//                        for (SkinClinic clinic : searchResult.items) {
+//                            Marker marker = new Marker();
+//                            double utmK_x = Double.parseDouble(clinic.mapx);
+//                            double utmK_y = Double.parseDouble(clinic.mapy);
+//
+//                            LatLng wgs84LatLng = utmKToWGS84(utmK_x, utmK_y);
+//                            double latitude = wgs84LatLng.latitude;
+//                            double longitude = wgs84LatLng.longitude;
+//
+//                            Log.d("SkinClinicSearch", "Adding marker at: (" + latitude + ", " + longitude + ")");
+//
+//                            marker.setPosition(new LatLng(latitude, longitude));
+//                            marker.setCaptionText(Html.fromHtml(clinic.title, Html.FROM_HTML_MODE_LEGACY).toString());
+//                            marker.setMap(naverMap);
+//                        }
+//
+//
+//                        // JSON 처리 및 UI 업데이트
+//                        Log.d("SkinClinicSearch", responseBody);
+//                    } catch (IOException e) {
+//                        Log.e("SkinClinicSearch", "응답 처리 중 오류 발생", e);
+//                    }
+//                } else {
+//                    Log.e("SkinClinicSearch", "API 호출 실패: " + response.message());
+//                }
+//            }
+//            @Override
+//            public void onFailure(Call<ResponseBody> call, Throwable t) {
+//                Log.e("SkinClinicSearch", "API 호출 실패", t);
+//            }
+//        });
+//    }
+
+
+
+
+//    public LatLng utmKToWGS84(double utmK_x, double utmK_y) {
+//        CRSFactory crsFactory = new CRSFactory();
+//        CoordinateTransformFactory ctFactory = new CoordinateTransformFactory();
+//
+//        // UTM-K 좌표계 정의
+//        String utmKCRS = "+proj=tmerc +lat_0=38 +lon_0=127.5 +k=0.9996 +x_0=1000000 +y_0=2000000 +ellps=GRS80 +units=m +no_defs";
+//        // WGS84 좌표계 정의
+//        String wgs84CRS = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs";
+//
+//        CoordinateReferenceSystem sourceCRS = crsFactory.createFromParameters("UTM-K", utmKCRS);
+//        CoordinateReferenceSystem targetCRS = crsFactory.createFromParameters("WGS84", wgs84CRS);
+//
+//        CoordinateTransform transform = ctFactory.createTransform(sourceCRS, targetCRS);
+//
+//        ProjCoordinate sourceCoord = new ProjCoordinate(utmK_x, utmK_y);
+//        ProjCoordinate targetCoord = new ProjCoordinate();
+//
+//        transform.transform(sourceCoord, targetCoord);
+//
+//        double latitude = targetCoord.y;
+//        double longitude = targetCoord.x;
+//
+//        return new LatLng(latitude, longitude);
+//    }
+
+    private void searchSkinClinics(double latitude, double longitude) {
+        String clientId = "OLHj8Um3kgdqHaFA1xiF";
+        String clientSecret = "Qc0bvWFohc";
+        String query = "피부과";
+        int display = 30; // 반환 결과 개수 설정
+        int radius = 40000; // 검색 반경 설정 (단위: m)
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://openapi.naver.com/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        naverApiService = retrofit.create(NaverApiService.class);
 
-        Button searchNearbyClinicsButton = findViewById(R.id.search_nearby_clinics_button);
+        NaverPlaceApiService service = retrofit.create(NaverPlaceApiService.class);
 
-        searchNearbyClinicsButton.setOnClickListener(new View.OnClickListener() {
+        Call<ResponseBody> call = service.searchSkinClinics(clientId, clientSecret, query, display, radius, latitude, longitude);
+        call.enqueue(new Callback<ResponseBody>() {
             @Override
-            public void onClick(View view) {
-                if (ActivityCompat.checkSelfPermission(AcneClinicRecommendationActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                        || ActivityCompat.checkSelfPermission(AcneClinicRecommendationActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    try {
+                        String responseBody = response.body().string();
+                        Gson gson = new Gson();
+                        SkinClinicSearchResult searchResult = gson.fromJson(responseBody, SkinClinicSearchResult.class);
 
-                    fusedLocationClient.getLastLocation().addOnSuccessListener(AcneClinicRecommendationActivity.this, new OnSuccessListener<Location>() {
-                        @Override
-                        public void onSuccess(Location location) {
-                            if (location != null) {
-                                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                                searchNearbyClinics(naverMap, latLng);
-                            } else {
-                                Toast.makeText(AcneClinicRecommendationActivity.this, "현재 위치를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show();
-                            }
+                        // 여기에 로그 출력 추가
+                        for (SkinClinic clinic : searchResult.items) {
+                            Log.d("SkinClinicSearch", "Clinic: " + clinic.title + ", Coordinates: (" + clinic.mapx + ", " + clinic.mapy + ")");
                         }
-                    });
 
+                        // 지도에 피부과 마커 추가
+                        // 지도에 피부과 마커 추가
+                        for (SkinClinic clinic : searchResult.items) {
+                            Marker marker = new Marker();
+                            double utmK_x = Double.parseDouble(clinic.mapx);
+                            double utmK_y = Double.parseDouble(clinic.mapy);
+
+                            LatLng wgs84LatLng = utmKToWGS84(utmK_x, utmK_y);
+                            double latitude = wgs84LatLng.latitude;
+                            double longitude = wgs84LatLng.longitude;
+
+                            Log.d("SkinClinicSearch", "Adding marker at: (" + latitude + ", " + longitude + ")");
+
+                            marker.setPosition(new LatLng(latitude, longitude));
+                            marker.setCaptionText(Html.fromHtml(clinic.title, Html.FROM_HTML_MODE_LEGACY).toString());
+                            marker.setMap(naverMap);
+                        }
+
+
+
+                        // JSON 처리 및 UI 업데이트
+                        Log.d("SkinClinicSearch", responseBody);
+                    } catch (IOException e) {
+                        Log.e("SkinClinicSearch", "응답 처리 중 오류 발생", e);
+                    }
                 } else {
-                    ActivityCompat.requestPermissions(AcneClinicRecommendationActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+                    Log.e("SkinClinicSearch", "API 호출 실패: " + response.message());
                 }
             }
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.e("SkinClinicSearch", "API 호출 실패", t);
+            }
         });
-
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                // 권한이 승인된 경우
-                Toast.makeText(this, "위치 권한이 승인되었습니다.", Toast.LENGTH_SHORT).show();
-                // 버튼 클릭 이벤트를 다시 호출합니다.
-                searchNearbyClinicsButton.callOnClick();
-            } else {
-                // 권한이 거부된 경우
-                Toast.makeText(this, "위치 권한이 거부되었습니다. 지도 기능을 사용할 수 없습니다.", Toast.LENGTH_SHORT).show();
-            }
+
+    public LatLng utmKToWGS84(double utmK_x, double utmK_y) {
+        CRSFactory crsFactory = new CRSFactory();
+        CoordinateReferenceSystem utmKCRS = crsFactory.createFromName("EPSG:5178"); // UTM-K 좌표계
+        CoordinateReferenceSystem wgs84CRS = crsFactory.createFromName("EPSG:4326"); // WGS84 좌표계
+
+        BasicCoordinateTransform transform = new BasicCoordinateTransform(utmKCRS, wgs84CRS);
+        ProjCoordinate utmKCoord = new ProjCoordinate(utmK_x, utmK_y);
+        ProjCoordinate wgs84Coord = new ProjCoordinate();
+
+        transform.transform(utmKCoord, wgs84Coord);
+
+        return new LatLng(wgs84Coord.y, wgs84Coord.x);
+    }
+
+    private void addMarkersAndInfoWindows(List<SkinClinic> skinClinics) {
+        for (SkinClinic clinic : skinClinics) {
+            double lat = Double.parseDouble(clinic.mapy);
+            double lng = Double.parseDouble(clinic.mapx);
+            LatLng latLng = new LatLng(lat, lng);
+
+            Marker marker = new Marker();
+            marker.setPosition(latLng);
+            marker.setMap(naverMap);
+            marker.setCaptionText(clinic.title);
+            marker.setCaptionRequestedWidth(200);
+            marker.setCaptionTextSize(16);
+            marker.setCaptionColor(Color.BLACK);
+            marker.setCaptionAligns(Align.Top);
         }
     }
 
@@ -123,93 +375,60 @@ public class AcneClinicRecommendationActivity extends AppCompatActivity implemen
     public void onMapReady(@NonNull NaverMap naverMap) {
         this.naverMap = naverMap;
         naverMap.setLocationSource(locationSource);
+        naverMap.getUiSettings().setLocationButtonEnabled(true);
         naverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        if (location != null) {
-                            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                            CameraPosition cameraPosition = new CameraPosition(latLng, 15);
-                            naverMap.setCameraPosition(cameraPosition);
-                        } else {
-                            CameraPosition cameraPosition = new CameraPosition(DEFAULT_LOCATION, 15);
-                            naverMap.setCameraPosition(cameraPosition);
-                        }
-                    }
-                });
-
-        // 사용자 위치 변경 리스너 설정
-        naverMap.addOnLocationChangeListener(new NaverMap.OnLocationChangeListener() {
+        NaverMap.OnLocationChangeListener onLocationChangeListener = new NaverMap.OnLocationChangeListener() {
             @Override
             public void onLocationChange(@NonNull Location location) {
-                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                // addMarkerAtLocation(naverMap, latLng);
+                double latitude = location.getLatitude();
+                double longitude = location.getLongitude();
+                searchSkinClinics(latitude, longitude);
+                naverMap.removeOnLocationChangeListener(this);
             }
-        });
+        };
 
+        naverMap.addOnLocationChangeListener(onLocationChangeListener);
     }
 
-    private void searchNearbyClinics(NaverMap naverMap, LatLng latLng) {
-        String clientId = "qqpxkmsi4j";
-        String clientSecret = "iDB7s0f1Wa2tMBr9Kr91SoPzf3BWatdtRW5Rps5N";
-        String query = "피부과";
-        int display = 10;
-        int start = 1;
-        String sort = "distance";
-        int radius = 20000; // 검색 범위를 미터 단위로 설정합니다. 여기서는 10000 미터로 설정했습니다.
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        naverApiService.searchLocal(clientId, clientSecret, query, display, start, sort, latLng.longitude, latLng.latitude, radius).enqueue(new Callback<NaverSearchResult>() {
-            @Override
-            public void onResponse(Call<NaverSearchResult> call, Response<NaverSearchResult> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    // 로그를 추가하여 API 요청이 성공적으로 이루어졌음을 확인합니다.
-                    Log.d("API_SUCCESS", "API 요청 성공");
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            locationSource.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
 
-                    for (NaverSearchResult.NaverSearchItem item : response.body().getItems()) {
-                        double mapX = item.getMapX();
-                        double mapY = item.getMapY();
-                        LatLng clinicLatLng = new LatLng(mapY, mapX);
-                        addClinicMarker(naverMap, clinicLatLng, item.getTitle());
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<NaverSearchResult> call, Throwable t) {
-                // 로그를 추가하여 오류 메시지를 확인할 수 있도록 합니다.
-                Log.e("API_ERROR", "피부과 검색 실패: ", t);
-                Toast.makeText(AcneClinicRecommendationActivity.this, "피부과 검색 실패: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+    private void checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+        }
     }
 
 
-    private void addClinicMarker(NaverMap naverMap, LatLng latLng, String title) {
-        Marker marker = new Marker();
-        marker.setPosition(latLng);
-        marker.setMap(naverMap);
-        marker.setCaptionText(title);
-        marker.setCaptionRequestedWidth(200);
-        marker.setCaptionColor(Color.BLUE);
-        marker.setCaptionHaloColor(Color.WHITE);
-        marker.setCaptionTextSize(12);
+
+
+
+    //드로어 관련 함수
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        // 기존 코드 유지
+        return super.onOptionsItemSelected(item);
     }
 
-    private void addMarkerAtLocation(NaverMap naverMap, LatLng latLng) {
-        Marker marker = new Marker();
-        marker.setPosition(latLng);
-        marker.setMap(naverMap);
+    //드로어 관련 함수
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
+
 }

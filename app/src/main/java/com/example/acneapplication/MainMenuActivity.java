@@ -16,12 +16,14 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
@@ -48,6 +50,9 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
     private FrameLayout customViewContainer;
     private WebChromeClient.CustomViewCallback customViewCallback;
     private View customView;
+    private String userNickname;
+    private String userProfilePictureUrl;
+
 
     // FetchVideoTask를 내부 클래스로 이동합니다.
     private class FetchVideoTask extends AsyncTask<String, Void, List<SearchResult>> {
@@ -98,19 +103,6 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
                 // 출처 TextView 업데이트
                 channelSource.setText("출처: " + channelTitle);
 
-//                // YouTube 앱으로 이동하는 버튼 생성
-//                Button openYouTubeButton = new Button(webView.getContext());
-//                openYouTubeButton.setText("YouTube 앱에서 보기");
-//                openYouTubeButton.setOnClickListener(view -> {
-//                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=" + videoId));
-//                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                    view.getContext().startActivity(intent);
-//                });
-//
-//                // 기존 레이아웃에 버튼 추가
-//                ((ViewGroup) webView.getParent()).addView(openYouTubeButton);
-
-                // YouTube 앱으로 이동하는 버튼 찾기
                 Button openYouTubeButton = ((ViewGroup) webView.getParent()).findViewById(R.id.open_youtube_button);
 
                 // 버튼에 클릭 리스너 추가
@@ -138,6 +130,9 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
         Intent intent = getIntent();
         String nickname = intent.getStringExtra("nickname"); //GoogleLoginActivity로부터 nickname 전달받음
         String profilePictureUrl = intent.getStringExtra("profile_picture");
+
+        userNickname = getIntent().getStringExtra("nickname");
+        userProfilePictureUrl = getIntent().getStringExtra("profile_picture");
 
         // 사용자 이름 및 프로필 사진 가져오기
         String displayName = getIntent().getStringExtra("displayName");
@@ -229,6 +224,34 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
                 customView = null;
             }
         });
+
+        // 하단 탭바 리스너 설정
+        // 하단 탭바에 대한 멤버 변수 추가
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+//                    case R.id.navigation_mypage:
+//                        startActivity(new Intent(MainMenuActivity.this, MyPageActivity.class));
+//                        break;
+                    case R.id.navigation_home:
+                        Intent MainMenuIntent = new Intent(MainMenuActivity.this, MainMenuActivity.class);
+                        MainMenuIntent.putExtra("nickname", nickname);
+                        MainMenuIntent.putExtra("profile_picture", profilePictureUrl);
+                        MainMenuIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
+                        MainMenuIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
+                        startActivity(MainMenuIntent);
+                        break;
+//                    case R.id.navigation_searchPage:
+//                        startActivity(new Intent(MainMenuActivity.this, SearchActivity.class));
+//                        break;
+                    default:
+                        break;
+                }
+                return true;
+            }
+        });
     }
 
     private String generateDailyKeyword() {
@@ -272,14 +295,29 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
     public boolean onNavigationItemSelected(MenuItem menuItem) {
         switch (menuItem.getItemId()) {
             case R.id.nav_history:
-                startActivity(new Intent(MainMenuActivity.this, HistoryMenuActivity.class));
+                Intent historyMenuIntent = new Intent(MainMenuActivity.this, HistoryMenuActivity.class);
+                historyMenuIntent.putExtra("nickname", userNickname);
+                historyMenuIntent.putExtra("profile_picture", userProfilePictureUrl);
+                historyMenuIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
+                historyMenuIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
+                startActivity(historyMenuIntent);
                 break;
                 // 구현 중
             case R.id.nav_acne_treatment:
-                startActivity(new Intent(MainMenuActivity.this, AcneTreatmentActivity.class));
+                Intent AcneTreatmentMenuIntent = new Intent(MainMenuActivity.this, AcneTreatmentActivity.class);
+                AcneTreatmentMenuIntent.putExtra("nickname", userNickname);
+                AcneTreatmentMenuIntent.putExtra("profile_picture", userProfilePictureUrl);
+                AcneTreatmentMenuIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
+                AcneTreatmentMenuIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
+                startActivity(AcneTreatmentMenuIntent);
                 break;
             case R.id.nav_clinicRecommend:
-                startActivity(new Intent(MainMenuActivity.this, AcneClinicRecommendationActivity.class));
+                Intent AcneClinicRecommendationtMenuIntent = new Intent(MainMenuActivity.this, AcneClinicRecommendationActivity.class);
+                AcneClinicRecommendationtMenuIntent.putExtra("nickname", userNickname);
+                AcneClinicRecommendationtMenuIntent.putExtra("profile_picture", userProfilePictureUrl);
+                AcneClinicRecommendationtMenuIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
+                AcneClinicRecommendationtMenuIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
+                startActivity(AcneClinicRecommendationtMenuIntent);
                 break;
                 // 미구현
 //            case R.id.nav_mypage:
