@@ -25,6 +25,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:targetApi="31" >
+        <activity
+            android:name=".AcneClinicRecommendationActivity"
+            android:exported="false" />
 
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
@@ -46,6 +49,24 @@
             android:name=".HistoryMenuActivity"
             android:exported="false"
             android:screenOrientation="fullSensor" />
+
+
+        <activity
+            android:name=".MainMenuActivity"
+            android:screenOrientation="fullSensor"
+            android:exported="true"/>
+
+<!--        <activity-->
+<!--            android:name=".MainMenuActivity"-->
+<!--            android:screenOrientation="fullSensor"-->
+<!--            android:exported="true">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
+
         <activity
             android:name=".GoogleLoginActivity"
             android:exported="true" >
@@ -56,17 +77,18 @@
             </intent-filter>
         </activity>
 
+<!--        <activity-->
+<!--            android:name=".GoogleLoginActivity"-->
+<!--            android:exported="true" />-->
+
+
         <activity
             android:name=".CameraActivity"
             android:screenOrientation="fullSensor" />
         <activity
             android:name=".GalleryActivity"
             android:screenOrientation="fullSensor" />
-        <activity
-            android:name=".MainMenuActivity"
-            android:screenOrientation="fullSensor"
-            android:exported="true">
-        </activity>
+
 
         <provider
             android:name="androidx.core.content.FileProvider"

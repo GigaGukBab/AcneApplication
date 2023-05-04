@@ -8,82 +8,98 @@
     android:fitsSystemWindows="true"
     tools:openDrawer="start">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <!-- Add a RelativeLayout to wrap ConstraintLayout and BottomNavigationView -->
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="16dp"
-        tools:context=".MainMenuActivity">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/textView4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif"
-            android:text="오늘의 피부 꿀팁"
-            android:textColor="@android:color/holo_blue_dark"
-            android:textSize="24sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <WebView
-            android:id="@+id/web_view"
-            android:layout_width="370dp"
-            android:layout_height="240dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView4" />
-
-        <TextView
-            android:id="@+id/channel_source"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="출처: CHANNEL_ID"
-            android:textSize="14sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/web_view" />
-
-        <Button
-            android:id="@+id/open_youtube_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="YouTube 앱에서 보기"
-            android:textSize="12sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/channel_source" />
-
-        <Button
-            android:id="@+id/gallaryBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="갤러리로 이동"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/open_youtube_button" />
-
-        <Button
-            android:id="@+id/cameraBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Camera"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/gallaryBtn" />
-
-        <FrameLayout
-            android:id="@+id/custom_view_container"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_constraintTop_toTopOf="@id/web_view"
-            app:layout_constraintBottom_toBottomOf="@id/web_view"
-            app:layout_constraintStart_toStartOf="@id/web_view"
-            app:layout_constraintEnd_toEndOf="@id/web_view"
-            android:visibility="gone" />
+            android:layout_above="@+id/bottom_navigation"
+            android:padding="16dp"
+            tools:context=".MainMenuActivity">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <!-- Your original ConstraintLayout content here -->
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
+                android:text="오늘의 피부 꿀팁"
+                android:textColor="#B61488"
+                android:textSize="24sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <WebView
+                android:id="@+id/web_view"
+                android:layout_width="370dp"
+                android:layout_height="240dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView4" />
+
+            <TextView
+                android:id="@+id/channel_source"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="출처: CHANNEL_ID"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/web_view" />
+
+            <Button
+                android:id="@+id/open_youtube_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="YouTube 앱에서 보기"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/channel_source" />
+
+            <Button
+                android:id="@+id/gallaryBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="갤러리로 이동"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/open_youtube_button" />
+
+            <Button
+                android:id="@+id/cameraBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Camera"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/gallaryBtn" />
+
+            <FrameLayout
+                android:id="@+id/custom_view_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_constraintTop_toTopOf="@id/web_view"
+                app:layout_constraintBottom_toBottomOf="@id/web_view"
+                app:layout_constraintStart_toStartOf="@id/web_view"
+                app:layout_constraintEnd_toEndOf="@id/web_view"
+                android:visibility="gone" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Add BottomNavigationView below the ConstraintLayout -->
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_navigation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            app:menu="@menu/bottom_navigation_menu" />
+
+    </RelativeLayout>
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
