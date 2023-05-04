@@ -184,6 +184,7 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
         // WebView 설정
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
+        webView.clearCache(true);
         webSettings.setLoadWithOverviewMode(true);
         webSettings.setUseWideViewPort(true);
         webSettings.setBuiltInZoomControls(true);
@@ -277,9 +278,6 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
                 // 구현 중
             case R.id.nav_acne_treatment:
                 startActivity(new Intent(MainMenuActivity.this, AcneTreatmentActivity.class));
-                break;
-            case R.id.nav_clinicRecommend:
-                startActivity(new Intent(MainMenuActivity.this, AcneClinicRecommendationActivity.class));
                 break;
                 // 미구현
 //            case R.id.nav_mypage:

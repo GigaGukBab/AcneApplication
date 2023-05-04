@@ -11,18 +11,36 @@
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintDimensionRatio="4:3"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/selectBtn"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="사진 선택"
+        app:layout_constraintWidth_percent="0.3"
         app:layout_constraintTop_toBottomOf="@+id/imageView"
-        app:layout_constraintBottom_toTopOf="@+id/resultTextView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/takeBtn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="사진 촬영"
+        app:layout_constraintWidth_percent="0.3"
+        app:layout_constraintTop_toBottomOf="@+id/imageView"
+        app:layout_constraintStart_toEndOf="@+id/selectBtn" />
+
+    <Button
+        android:id="@+id/treatBtn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="자세한 처치법 보러가기"
+        android:textSize="12sp"
+        app:layout_constraintWidth_percent="0.4"
+        app:layout_constraintTop_toBottomOf="@+id/imageView"
+        app:layout_constraintStart_toEndOf="@+id/takeBtn" />
 
     <TextView
         android:id="@+id/resultTextView"

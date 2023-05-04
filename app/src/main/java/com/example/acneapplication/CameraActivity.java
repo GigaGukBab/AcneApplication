@@ -48,7 +48,8 @@ public class CameraActivity extends AppCompatActivity {
 
     private ClassifierWithModel cls;
     private ImageView imageView;
-    private TextView textView;
+    private TextView resultTextView;
+    private TextView treatmentTextView;
 
     Uri selectedImageUri;
 
@@ -74,7 +75,8 @@ public class CameraActivity extends AppCompatActivity {
         takeBtn.setOnClickListener(v -> getImageFromCamera());
 
         imageView = findViewById(R.id.imageView);
-        textView = findViewById(R.id.textView);
+        resultTextView = findViewById(R.id.resultTextView);
+        treatmentTextView = findViewById(R.id.treatmentTextView);
 
         cls = new ClassifierWithModel(this);
         try {
@@ -147,11 +149,11 @@ public class CameraActivity extends AppCompatActivity {
             if(bitmap != null) {
                 Pair<String, Float> output = cls.classify(bitmap);
                 String resultStr = String.format(Locale.ENGLISH,
-                        "class : %s, prob : %.2f%%",
+                        "여드름 종류 : %s, 확률 : %.2f%%",
                         output.first, output.second * 100);
 
                 imageView.setImageBitmap(bitmap);
-                textView.setText(resultStr);
+                resultTextView.setText(resultStr);
 
                 // 이미지 파일 이름 추출
                 String imageName = getImageNameFromUri(selectedImageUri);
