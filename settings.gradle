@@ -13,6 +13,7 @@ dependencyResolutionManagement {
         jcenter()
         maven { url 'https://naver.jfrog.io/artifactory/maven/' }
         maven { url 'https://navercorp.bintray.com/maps' }
+        maven{ url 'https://devrepo.kakao.com/nexus/content/groups/public/' }
     }
 }
 rootProject.name = "AcneApplication"

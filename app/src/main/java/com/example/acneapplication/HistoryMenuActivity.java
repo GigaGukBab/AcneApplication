@@ -122,7 +122,7 @@ public class HistoryMenuActivity extends AppCompatActivity {
 //                        startActivity(intent);
 //                        break;
                     case R.id.nav_clinicRecommend:
-                        Intent AcneClinicRecommendationtMenuIntent = new Intent(HistoryMenuActivity.this, AcneClinicRecommendationActivity.class);
+                        Intent AcneClinicRecommendationtMenuIntent = new Intent(HistoryMenuActivity.this, AcneClinicRecommendationOnGoogleMapActivity.class);
                         AcneClinicRecommendationtMenuIntent.putExtra("nickname", nickname);
                         AcneClinicRecommendationtMenuIntent.putExtra("profile_picture", profilePictureUrl);
                         AcneClinicRecommendationtMenuIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));

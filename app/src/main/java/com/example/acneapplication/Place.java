@@ -3,8 +3,8 @@ package com.example.acneapplication;
 public class Place {
     private String title;
     private String address;
-    private String mapx;
-    private String mapy;
+    private double mapx;
+    private double mapy;
 
     // 생성자, getter, setter
 
@@ -24,19 +24,19 @@ public class Place {
         this.address = address;
     }
 
-    public String getMapx() {
+    public double getMapx() {
         return mapx;
     }
 
-    public void setMapx(String mapx) {
+    public void setMapx(double mapx) {
         this.mapx = mapx;
     }
 
-    public String getMapy() {
+    public double getMapy() {
         return mapy;
     }
 
-    public void setMapy(String mapy) {
+    public void setMapy(double mapy) {
         this.mapy = mapy;
     }
 }

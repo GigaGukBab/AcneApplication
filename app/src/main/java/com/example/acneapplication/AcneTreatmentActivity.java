@@ -106,7 +106,7 @@ public class AcneTreatmentActivity extends AppCompatActivity {
 //                        startActivity(intent);
 //                        break;
                     case R.id.nav_clinicRecommend:
-                        Intent AcneClinicRecommendationtMenuIntent = new Intent(AcneTreatmentActivity.this, AcneClinicRecommendationActivity.class);
+                        Intent AcneClinicRecommendationtMenuIntent = new Intent(AcneTreatmentActivity.this, AcneClinicRecommendationOnGoogleMapActivity.class);
                         AcneClinicRecommendationtMenuIntent.putExtra("nickname", nickname);
                         AcneClinicRecommendationtMenuIntent.putExtra("profile_picture", profilePictureUrl);
                         AcneClinicRecommendationtMenuIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));

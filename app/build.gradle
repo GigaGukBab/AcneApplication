@@ -76,9 +76,8 @@ dependencies {
     implementation 'com.google.api-client:google-api-client-gson:1.31.5'
     implementation 'com.google.apis:google-api-services-youtube:v3-rev222-1.25.0'
 
-    // Google Maps and Places API
-//    implementation 'com.google.android.gms:play-services-maps:17.1.0'
-//    implementation 'com.google.android.gms:play-services-location:21.0.1'
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'
+    implementation 'com.google.android.gms:play-services-places:17.0.0'
 
     implementation 'com.naver.maps:map-sdk:3.16.0'
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
@@ -87,4 +86,6 @@ dependencies {
     implementation 'com.google.android.material:material:1.8.0'
 
     implementation 'org.osgeo:proj4j:0.1.0'
+
+    implementation 'com.android.volley:volley:1.2.1'
 }
