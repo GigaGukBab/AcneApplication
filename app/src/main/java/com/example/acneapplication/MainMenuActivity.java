@@ -312,7 +312,7 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
                 startActivity(AcneTreatmentMenuIntent);
                 break;
             case R.id.nav_clinicRecommend:
-                Intent AcneClinicRecommendationtMenuIntent = new Intent(MainMenuActivity.this, AcneClinicRecommendationActivity.class);
+                Intent AcneClinicRecommendationtMenuIntent = new Intent(MainMenuActivity.this, AcneClinicRecommendationOnGoogleMapActivity.class);
                 AcneClinicRecommendationtMenuIntent.putExtra("nickname", userNickname);
                 AcneClinicRecommendationtMenuIntent.putExtra("profile_picture", userProfilePictureUrl);
                 AcneClinicRecommendationtMenuIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));

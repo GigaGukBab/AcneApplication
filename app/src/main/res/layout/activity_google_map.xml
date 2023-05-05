@@ -5,21 +5,16 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AcneClinicRecommendationOnNaverMapsActivity">
+    tools:context=".AcneClinicRecommendationOnGoogleMapActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-
-        <androidx.fragment.app.FragmentContainerView
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/mapView"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:id="@+id/map"
-            android:name="com.naver.maps.map.MapFragment"
-            tools:layout="@layout/places_autocomplete_activity"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintVertical_bias="0.3" />
+            android:layout_height="match_parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -3,7 +3,6 @@ package com.example.acneapplication;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.text.Html;
@@ -29,13 +28,14 @@ import com.naver.maps.map.LocationTrackingMode;
 import com.naver.maps.map.MapFragment;
 import com.naver.maps.map.NaverMap;
 import com.naver.maps.map.OnMapReadyCallback;
-import com.naver.maps.map.overlay.Align;
 import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.util.FusedLocationSource;
 
 import org.osgeo.proj4j.BasicCoordinateTransform;
 import org.osgeo.proj4j.CRSFactory;
 import org.osgeo.proj4j.CoordinateReferenceSystem;
+import org.osgeo.proj4j.CoordinateTransform;
+import org.osgeo.proj4j.CoordinateTransformFactory;
 import org.osgeo.proj4j.ProjCoordinate;
 
 import java.io.IOException;
@@ -49,7 +49,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class AcneClinicRecommendationActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class AcneClinicRecommendationOnNaverMapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1000;
     private FusedLocationSource locationSource;
@@ -57,6 +57,11 @@ public class AcneClinicRecommendationActivity extends AppCompatActivity implemen
     private ActionBarDrawerToggle actionBarDrawerToggle;
 
     private NaverMap naverMap;
+    private Location lastSearchLocation = null;
+    private long lastSearchTime = 0;
+    private static final long SEARCH_TIME_INTERVAL = 30000; // 30초
+    private static final float SEARCH_DISTANCE_INTERVAL = 100; // 100m
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,7 +126,7 @@ public class AcneClinicRecommendationActivity extends AppCompatActivity implemen
 //                        startActivity(intent);
 //                        break;
                 case R.id.nav_history:
-                    Intent historyMenuIntent = new Intent(AcneClinicRecommendationActivity.this, HistoryMenuActivity.class);
+                    Intent historyMenuIntent = new Intent(AcneClinicRecommendationOnNaverMapsActivity.this, HistoryMenuActivity.class);
                     historyMenuIntent.putExtra("nickname", nickname);
                     historyMenuIntent.putExtra("profile_picture", profilePictureUrl);
                     historyMenuIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
@@ -129,7 +134,7 @@ public class AcneClinicRecommendationActivity extends AppCompatActivity implemen
                     startActivity(historyMenuIntent);
                     break;
                 case R.id.nav_acne_treatment:
-                    Intent AcneTreatmentMenuIntent = new Intent(AcneClinicRecommendationActivity.this, AcneTreatmentActivity.class);
+                    Intent AcneTreatmentMenuIntent = new Intent(AcneClinicRecommendationOnNaverMapsActivity.this, AcneTreatmentActivity.class);
                     AcneTreatmentMenuIntent.putExtra("nickname", nickname);
                     AcneTreatmentMenuIntent.putExtra("profile_picture", profilePictureUrl);
                     AcneTreatmentMenuIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
@@ -168,8 +173,8 @@ public class AcneClinicRecommendationActivity extends AppCompatActivity implemen
         String telephone;
         String address;
         String roadAddress;
-        String mapx;
-        String mapy;
+        double mapx;
+        double mapy;
     }
 
     public static class SkinClinicSearchResult {
@@ -180,104 +185,12 @@ public class AcneClinicRecommendationActivity extends AppCompatActivity implemen
         List<SkinClinic> items;
     }
 
-
-//    private void searchSkinClinics(double latitude, double longitude) {
-//        String clientId = "OLHj8Um3kgdqHaFA1xiF";
-//        String clientSecret = "Qc0bvWFohc";
-//        String query = "피부과";
-//        int display = 20; // 반환 결과 개수 설정
-//        int radius = 20000; // 검색 반경 설정 (단위: m)
-//
-//        Retrofit retrofit = new Retrofit.Builder()
-//                .baseUrl("https://openapi.naver.com/")
-//                .addConverterFactory(GsonConverterFactory.create())
-//                .build();
-//
-//        NaverPlaceApiService service = retrofit.create(NaverPlaceApiService.class);
-//
-//        Call<ResponseBody> call = service.searchSkinClinics(clientId, clientSecret, query, display, radius, latitude, longitude);
-//        call.enqueue(new Callback<ResponseBody>() {
-//            @Override
-//            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-//                if (response.isSuccessful()) {
-//                    try {
-//                        String responseBody = response.body().string();
-//                        Gson gson = new Gson();
-//                        SkinClinicSearchResult searchResult = gson.fromJson(responseBody, SkinClinicSearchResult.class);
-//
-//                        // 여기에 로그 출력 추가
-//                        for (SkinClinic clinic : searchResult.items) {
-//                            Log.d("SkinClinicSearch", "Clinic: " + clinic.title + ", Coordinates: (" + clinic.mapx + ", " + clinic.mapy + ")");
-//                        }
-//
-//                        // 지도에 피부과 마커 추가
-//                        for (SkinClinic clinic : searchResult.items) {
-//                            Marker marker = new Marker();
-//                            double utmK_x = Double.parseDouble(clinic.mapx);
-//                            double utmK_y = Double.parseDouble(clinic.mapy);
-//
-//                            LatLng wgs84LatLng = utmKToWGS84(utmK_x, utmK_y);
-//                            double latitude = wgs84LatLng.latitude;
-//                            double longitude = wgs84LatLng.longitude;
-//
-//                            Log.d("SkinClinicSearch", "Adding marker at: (" + latitude + ", " + longitude + ")");
-//
-//                            marker.setPosition(new LatLng(latitude, longitude));
-//                            marker.setCaptionText(Html.fromHtml(clinic.title, Html.FROM_HTML_MODE_LEGACY).toString());
-//                            marker.setMap(naverMap);
-//                        }
-//
-//
-//                        // JSON 처리 및 UI 업데이트
-//                        Log.d("SkinClinicSearch", responseBody);
-//                    } catch (IOException e) {
-//                        Log.e("SkinClinicSearch", "응답 처리 중 오류 발생", e);
-//                    }
-//                } else {
-//                    Log.e("SkinClinicSearch", "API 호출 실패: " + response.message());
-//                }
-//            }
-//            @Override
-//            public void onFailure(Call<ResponseBody> call, Throwable t) {
-//                Log.e("SkinClinicSearch", "API 호출 실패", t);
-//            }
-//        });
-//    }
-
-
-
-
-//    public LatLng utmKToWGS84(double utmK_x, double utmK_y) {
-//        CRSFactory crsFactory = new CRSFactory();
-//        CoordinateTransformFactory ctFactory = new CoordinateTransformFactory();
-//
-//        // UTM-K 좌표계 정의
-//        String utmKCRS = "+proj=tmerc +lat_0=38 +lon_0=127.5 +k=0.9996 +x_0=1000000 +y_0=2000000 +ellps=GRS80 +units=m +no_defs";
-//        // WGS84 좌표계 정의
-//        String wgs84CRS = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs";
-//
-//        CoordinateReferenceSystem sourceCRS = crsFactory.createFromParameters("UTM-K", utmKCRS);
-//        CoordinateReferenceSystem targetCRS = crsFactory.createFromParameters("WGS84", wgs84CRS);
-//
-//        CoordinateTransform transform = ctFactory.createTransform(sourceCRS, targetCRS);
-//
-//        ProjCoordinate sourceCoord = new ProjCoordinate(utmK_x, utmK_y);
-//        ProjCoordinate targetCoord = new ProjCoordinate();
-//
-//        transform.transform(sourceCoord, targetCoord);
-//
-//        double latitude = targetCoord.y;
-//        double longitude = targetCoord.x;
-//
-//        return new LatLng(latitude, longitude);
-//    }
-
     private void searchSkinClinics(double latitude, double longitude) {
         String clientId = "OLHj8Um3kgdqHaFA1xiF";
         String clientSecret = "Qc0bvWFohc";
         String query = "피부과";
-        int display = 30; // 반환 결과 개수 설정
-        int radius = 40000; // 검색 반경 설정 (단위: m)
+        int display = 20; // 반환 결과 개수 설정
+        int radius = 20000; // 검색 반경 설정 (단위: m)
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://openapi.naver.com/")
@@ -302,23 +215,18 @@ public class AcneClinicRecommendationActivity extends AppCompatActivity implemen
                         }
 
                         // 지도에 피부과 마커 추가
-                        // 지도에 피부과 마커 추가
                         for (SkinClinic clinic : searchResult.items) {
+
+                            LatLng latLng = utmToLatLng(clinic.mapx, clinic.mapy);
+
                             Marker marker = new Marker();
-                            double utmK_x = Double.parseDouble(clinic.mapx);
-                            double utmK_y = Double.parseDouble(clinic.mapy);
 
-                            LatLng wgs84LatLng = utmKToWGS84(utmK_x, utmK_y);
-                            double latitude = wgs84LatLng.latitude;
-                            double longitude = wgs84LatLng.longitude;
-
-                            Log.d("SkinClinicSearch", "Adding marker at: (" + latitude + ", " + longitude + ")");
-
-                            marker.setPosition(new LatLng(latitude, longitude));
+                            marker.setPosition(latLng);
                             marker.setCaptionText(Html.fromHtml(clinic.title, Html.FROM_HTML_MODE_LEGACY).toString());
                             marker.setMap(naverMap);
-                        }
 
+                            Log.d("SkinClinicSearch", "Adding marker at: (" + latitude + ", " + longitude + ")");
+                        }
 
 
                         // JSON 처리 및 UI 업데이트
@@ -352,22 +260,39 @@ public class AcneClinicRecommendationActivity extends AppCompatActivity implemen
         return new LatLng(wgs84Coord.y, wgs84Coord.x);
     }
 
-    private void addMarkersAndInfoWindows(List<SkinClinic> skinClinics) {
-        for (SkinClinic clinic : skinClinics) {
-            double lat = Double.parseDouble(clinic.mapy);
-            double lng = Double.parseDouble(clinic.mapx);
-            LatLng latLng = new LatLng(lat, lng);
+    private LatLng utmToLatLng(double x, double y) {
+        CRSFactory crsFactory = new CRSFactory();
+        CoordinateReferenceSystem srcCRS = crsFactory.createFromName("EPSG:5178");
+        CoordinateReferenceSystem destCRS = crsFactory.createFromName("EPSG:4326");
 
-            Marker marker = new Marker();
-            marker.setPosition(latLng);
-            marker.setMap(naverMap);
-            marker.setCaptionText(clinic.title);
-            marker.setCaptionRequestedWidth(200);
-            marker.setCaptionTextSize(16);
-            marker.setCaptionColor(Color.BLACK);
-            marker.setCaptionAligns(Align.Top);
-        }
+        CoordinateTransformFactory ctFactory = new CoordinateTransformFactory();
+        CoordinateTransform transform = ctFactory.createTransform(srcCRS, destCRS);
+
+        ProjCoordinate srcCoord = new ProjCoordinate(x, y);
+        ProjCoordinate destCoord = new ProjCoordinate();
+
+        transform.transform(srcCoord, destCoord);
+
+        return new LatLng(destCoord.y, destCoord.x);
     }
+
+
+//    private void addMarkersAndInfoWindows(List<SkinClinic> skinClinics) {
+//        for (SkinClinic clinic : skinClinics) {
+//            double lat = Double.parseDouble(clinic.mapy);
+//            double lng = Double.parseDouble(clinic.mapx);
+//            LatLng latLng = new LatLng(lat, lng);
+//
+//            Marker marker = new Marker();
+//            marker.setPosition(latLng);
+//            marker.setMap(naverMap);
+//            marker.setCaptionText(clinic.title);
+//            marker.setCaptionRequestedWidth(200);
+//            marker.setCaptionTextSize(16);
+//            marker.setCaptionColor(Color.BLACK);
+//            marker.setCaptionAligns(Align.Top);
+//        }
+//    }
 
 
 
@@ -383,8 +308,21 @@ public class AcneClinicRecommendationActivity extends AppCompatActivity implemen
             public void onLocationChange(@NonNull Location location) {
                 double latitude = location.getLatitude();
                 double longitude = location.getLongitude();
-                searchSkinClinics(latitude, longitude);
-                naverMap.removeOnLocationChangeListener(this);
+
+                // 현재 시간을 가져옵니다.
+                long currentTime = System.currentTimeMillis();
+
+                // 마지막 검색 위치와 거리를 계산합니다.
+                float distance = lastSearchLocation != null ? location.distanceTo(lastSearchLocation) : SEARCH_DISTANCE_INTERVAL + 1;
+
+                // 시간과 거리 기준을 만족하는 경우에만 검색을 실행합니다.
+                if ((currentTime - lastSearchTime) >= SEARCH_TIME_INTERVAL && distance >= SEARCH_DISTANCE_INTERVAL) {
+                    searchSkinClinics(latitude, longitude);
+
+                    // 마지막 검색 시간 및 위치를 업데이트합니다.
+                    lastSearchTime = currentTime;
+                    lastSearchLocation = location;
+                }
             }
         };
 
