@@ -61,6 +61,8 @@ public class GalleryActivity extends AppCompatActivity {
     private String classifiedAcneType;
     private Uri selectedImageUri;
 
+    private Bitmap bitmap = null;
+
     private void checkCameraPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             // 카메라 권한이 없는 경우, 사용자에게 권한 요청
@@ -123,6 +125,11 @@ public class GalleryActivity extends AppCompatActivity {
         treatBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (bitmap == null) {
+                    Toast.makeText(GalleryActivity.this, "이미지가 없습니다. 이미지를 선택해주세요.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 Intent intent;
 
                 // 여드름 종류에 따라 알맞는 액티비티를 선택합니다.
@@ -149,6 +156,7 @@ public class GalleryActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
 
         imageView = findViewById(R.id.imageView);
         resultTextView = findViewById(R.id.resultTextView);
@@ -296,16 +304,28 @@ public class GalleryActivity extends AppCompatActivity {
 
         if (bitmap != null) {
             Pair<String, Float> output = cls.classify(bitmap);
-            classifiedAcneType = output.first; // 분류된 여드름 종류를 저장합니다.
+            classifiedAcneType = output.first;
+
+            // 여드름 종류를 한글로 변환
+            String acneTypeKorean = output.first;
+            if (acneTypeKorean.contains("acne_comedonia")) {
+                acneTypeKorean = acneTypeKorean.replace("acne_comedonia", "면포성 여드름");
+            } else if (acneTypeKorean.contains("acne_papules")) {
+                acneTypeKorean = acneTypeKorean.replace("acne_papules", "구진성 여드름");
+            } else if (acneTypeKorean.contains("acne_pustular")) {
+                acneTypeKorean = acneTypeKorean.replace("acne_pustular", "농포성 여드름");
+            }
+
             String resultStr = String.format(Locale.ENGLISH,
                     "여드름 종류 : %s, 확률 : %.2f%%",
-                    output.first, output.second * 100);
+                    acneTypeKorean, output.second * 100);
+
 
             resultTextView.setText(resultStr);
             imageView.setImageBitmap(bitmap);
 
             // 분류명에 따른 처치법을 firestore에서 가져옴
-            getTreatmentForAcne(output.first);
+            getTreatmentForAcne(output.first+"_treatment_doc");
 
             // 이미지 파일 이름 추출
             String imageName = getImageNameFromUri(selectedImage);
@@ -357,8 +377,8 @@ public class GalleryActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
                         if (document.exists()) {
-                            String treatment = document.getString("treatment");
-                            treatmentTextView.append("\n\n처치법: " + treatment);
+                            String treatment = document.getString("short_treatment");
+                            treatmentTextView.append("\n\n관리법: " + treatment);
                         } else {
                             Log.d(TAG, "No such document");
                         }
