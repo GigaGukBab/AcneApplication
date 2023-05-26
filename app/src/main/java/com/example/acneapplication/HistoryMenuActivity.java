@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.acneapplication.BookMarkFunc.BookMarkActivity;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
@@ -102,10 +103,6 @@ public class HistoryMenuActivity extends AppCompatActivity {
 
                 Intent intent;
                 switch (id) {
-//                    case R.id.nav_mypage:
-//                        intent = new Intent(HistoryMenuActivity.this, MyPageActivity.class);
-//                        startActivity(intent);
-//                        break;
                     case R.id.nav_history:
                         // 이미 HistoryMenuActivity에 있으므로 아무 작업도 수행하지 않음
                         break;
@@ -117,10 +114,14 @@ public class HistoryMenuActivity extends AppCompatActivity {
                         AcneTreatmentMenuIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
                         startActivity(AcneTreatmentMenuIntent);
                         break;
-//                    case R.id.nav_bookmark:
-//                        intent = new Intent(HistoryMenuActivity.this, BookmarkActivity.class);
-//                        startActivity(intent);
-//                        break;
+                    case R.id.nav_bookmark:
+                        Intent AcneClinicBookmarkIntent = new Intent(HistoryMenuActivity.this, BookMarkActivity.class);
+                        AcneClinicBookmarkIntent.putExtra("nickname", nickname);
+                        AcneClinicBookmarkIntent.putExtra("profile_picture", profilePictureUrl);
+                        AcneClinicBookmarkIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
+                        AcneClinicBookmarkIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
+                        startActivity(AcneClinicBookmarkIntent);
+                        break;
                     case R.id.nav_clinicRecommend:
                         Intent AcneClinicRecommendationtMenuIntent = new Intent(HistoryMenuActivity.this, AcneClinicRecommendationOnGoogleMapActivity.class);
                         AcneClinicRecommendationtMenuIntent.putExtra("nickname", nickname);

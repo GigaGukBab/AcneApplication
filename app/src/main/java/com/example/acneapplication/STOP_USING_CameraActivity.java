@@ -36,7 +36,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class CameraActivity extends AppCompatActivity {
+public class STOP_USING_CameraActivity extends AppCompatActivity {
 
     private FirebaseFirestore firestore;
     FirebaseFirestore db = FirebaseFirestore.getInstance();

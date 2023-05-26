@@ -66,19 +66,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="갤러리로 이동"
+                android:text="내 여드름 타입 알아보기"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/open_youtube_button" />
 
-            <Button
-                android:id="@+id/cameraBtn"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Camera"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/gallaryBtn" />
+<!--            <Button-->
+<!--                android:id="@+id/cameraBtn"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="Camera"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toBottomOf="@+id/gallaryBtn" />-->
 
             <FrameLayout
                 android:id="@+id/custom_view_container"
@@ -97,7 +97,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            app:menu="@menu/bottom_navigation_menu" />
+            app:menu="@menu/bottom_navigation_menu"
+            app:itemBackground="@color/white"
+            app:itemIconTint="@color/bottom_navigation_color"
+            app:itemTextColor="@color/bottom_navigation_color"
+            style="@style/BottomNavigationTheme"/>
 
     </RelativeLayout>
 

@@ -40,7 +40,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class GalleryActivity extends AppCompatActivity {
+public class AcneClassifyFunctionActivity extends AppCompatActivity {
 
     private FirebaseFirestore firestore;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -126,7 +126,7 @@ public class GalleryActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (bitmap == null) {
-                    Toast.makeText(GalleryActivity.this, "이미지가 없습니다. 이미지를 선택해주세요.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AcneClassifyFunctionActivity.this, "이미지가 없습니다. 이미지를 선택해주세요.", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -135,21 +135,21 @@ public class GalleryActivity extends AppCompatActivity {
                 // 여드름 종류에 따라 알맞는 액티비티를 선택합니다.
                 switch (classifiedAcneType) {
                     case "acne_papules":
-                        intent = new Intent(GalleryActivity.this, AcnePapulesTreatActivity.class);
+                        intent = new Intent(AcneClassifyFunctionActivity.this, AcnePapulesTreatActivity.class);
                         Log.d(TAG, "acne_papules classified"); // 레이아웃 이동 로그 추가
                         break;
                     case "acne_pustular":
-                        intent = new Intent(GalleryActivity.this, AcnePustularTreatActivity.class);
+                        intent = new Intent(AcneClassifyFunctionActivity.this, AcnePustularTreatActivity.class);
                         Log.d(TAG, "acne_pustular classified"); // 레이아웃 이동 로그 추가
                         break;
                     case "acne_comedonia":
-                        intent = new Intent(GalleryActivity.this, AcneComedoniaTreatActivity.class);
+                        intent = new Intent(AcneClassifyFunctionActivity.this, AcneComedoniaTreatActivity.class);
                         Log.d(TAG, "acne_comedonia classified"); // 레이아웃 이동 로그 추가
                         break;
                     // 다른 여드름 종류에 대한 처리를 여기에 추가하세요.
                     default:
                         // 알 수 없는 여드름 종류의 경우 처리하지 않습니다.
-                        Toast.makeText(GalleryActivity.this, "알 수 없는 여드름 종류입니다.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(AcneClassifyFunctionActivity.this, "알 수 없는 여드름 종류입니다.", Toast.LENGTH_SHORT).show();
                         return;
                 }
 

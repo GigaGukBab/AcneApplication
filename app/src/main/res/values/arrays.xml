@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array
+        name="skin_types">
+        <item>건성</item>
+        <item>지성</item>
+        <item>복합성</item>
+        <item>민감성</item>
+    </string-array>
+    <string-array
+        name="acne_types">
+        <item>여드름 없음</item>
+        <item>면포성 여드름</item>
+        <item>구진성 여드름</item>
+        <item>농포성 여드름</item>
+    </string-array>
+    <string-array
+        name="options">
+        <item>북마크에 추가</item>
+        <item>네이버 지도에서 검색</item>
+    </string-array>
+    <string-array
+        name="options_with_unbookmark">
+        <item>북마크 삭제</item>
+        <item>네이버 지도에서 검색</item>
+    </string-array>
+    <!-- '북마크 추가'와 '네이버 지도에서 보기' 옵션을 가진 배열 -->
+    <string-array name="options_and_naver_map">
+        <item>@string/add_to_bookmark</item>
+        <item>@string/view_on_naver_map</item>
+    </string-array>
+
+    <!-- '북마크 삭제'와 '네이버 지도에서 보기' 옵션을 가진 배열 -->
+    <string-array name="options_with_unbookmark_and_naver_map">
+        <item>@string/remove_from_bookmark</item>
+        <item>@string/view_on_naver_map</item>
+    </string-array>
+</resources>

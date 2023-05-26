@@ -1,19 +1,23 @@
 package com.example.acneapplication;
 
 import android.Manifest;
-import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
@@ -32,27 +36,41 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
-public class AcneClinicRecommendationOnGoogleMapActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class AcneClinicRecommendationOnGoogleMapActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
     private GoogleMap mMap;
     private MapView mapView;
     private FusedLocationProviderClient mFusedLocationClient;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1000;
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
+    private String TAG;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+    private HashMap<String, Marker> markerMap = new HashMap<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,7 +178,7 @@ public class AcneClinicRecommendationOnGoogleMapActivity extends AppCompatActivi
         // 검색 반경 설정
         int radius = 5000; // 5km 반경 내 피부과 검색
         String[] placeTypes = {"doctor"};
-        String[] keywords = {"피부과", "피부과 전문의", "피부 클리닉", "피부과 의원", "여드름 치료", "여드름 흉터치료"};
+        String[] keywords = {"피부", "피부과", "피부 클리닉", "여드름 치료", "여드름 흉터치료"};
         String locationString = userLocation.latitude + "," + userLocation.longitude;
 
         // RequestQueue 생성
@@ -206,6 +224,33 @@ public class AcneClinicRecommendationOnGoogleMapActivity extends AppCompatActivi
         }
     }
 
+    @Override
+    public boolean onMarkerClick(final Marker marker) {
+        db.collection("bookmark_places")
+                .document(marker.getTitle())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                // 이미 북마크된 장소인 경우, 대화상자에 '북마크 삭제' 옵션을 추가합니다.
+                                showAlertDialog(marker, true);
+                                // 선택된 북마크된 장소의 마커를 노란색으로 유지합니다.
+                                changeMarkerColor(marker, BitmapDescriptorFactory.HUE_YELLOW);
+                            } else {
+                                // 아직 북마크되지 않은 장소인 경우, 대화상자에 '북마크 추가' 옵션만 있습니다.
+                                showAlertDialog(marker, false);
+                            }
+                        } else {
+                            Log.d(TAG, "get failed with ", task.getException());
+                        }
+                    }
+                });
+        return false;
+    }
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -237,39 +282,204 @@ public class AcneClinicRecommendationOnGoogleMapActivity extends AppCompatActivi
 
                             // 사용자 위치 기반으로 주변 피부과 검색 및 마커 추가
                             fetchNearbySkinClinics(userLocation);
+
+                            // Handler를 이용하여 북마크된 장소를 가져오는 메서드를 지연 실행합니다.
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    // Firestore에서 북마크된 장소 확인하여 노란색 마커로 표시
+                                    fetchBookmarkedPlaces();
+                                }
+                            }, 1500);  // 3000은 3초를 의미합니다.
                         }
                     }
                 });
 
+        // 마커 정보 창 클릭 시 동작 정의
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
-            public void onInfoWindowClick(Marker marker) {
-                String clinicName = marker.getTitle();
-                try {
-                    // 네이버 지도 앱으로 검색
-                    String uri = "nmap://search?query=" + Uri.encode(clinicName) + "&appname=" + getPackageName();
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-                    intent.addCategory(Intent.CATEGORY_BROWSABLE);
-                    intent.setPackage("com.nhn.android.nmap");
-                    startActivity(intent);
-                } catch (ActivityNotFoundException e) {
-                    // 네이버 지도 앱이 설치되어 있지 않다면 Google Play 스토어로 이동
-                    Uri playStoreUri = Uri.parse("market://details?id=com.nhn.android.nmap");
-                    Intent playStoreIntent = new Intent(Intent.ACTION_VIEW, playStoreUri);
-                    try {
-                        startActivity(playStoreIntent);
-                    } catch (ActivityNotFoundException ex) {
-                        // Google Play 스토어가 없으면 웹에서 열기
-                        playStoreUri = Uri.parse("https://play.google.com/store/apps/details?id=com.nhn.android.nmap");
-                        playStoreIntent = new Intent(Intent.ACTION_VIEW, playStoreUri);
-                        startActivity(playStoreIntent);
-                    }
-                }
+            public void onInfoWindowClick(final Marker marker) {
+                final String clinicName = marker.getTitle();
+
+                // Firestore에서 해당 마커의 정보를 찾습니다.
+                db.collection("bookmark_places")
+                        .document(clinicName)
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    DocumentSnapshot document = task.getResult();
+                                    if (document.exists()) {
+                                        // 마커가 이미 북마크된 경우, '북마크 삭제' 옵션을 보여줍니다.
+                                        showAlertDialog(marker, true);
+                                    } else {
+                                        // 마커가 북마크되지 않은 경우, '북마크 추가' 옵션만 보여줍니다.
+                                        showAlertDialog(marker, false);
+                                    }
+                                } else {
+                                    Log.w(TAG, "Error getting documents.", task.getException());
+                                }
+                            }
+                        });
             }
         });
-
-
     }
+
+
+    private void fetchBookmarkedPlaces() {
+        // Firestore에서 북마크된 장소를 가져와서 노란색 마커로 표시하는 코드 작성
+        db.collection("bookmark_places")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                double latitude = document.getDouble("latitude");
+                                double longitude = document.getDouble("longitude");
+                                String name = document.getString("name");
+
+                                // 각 북마크된 장소를 지도에 노란색 마커로 추가합니다.
+                                MarkerOptions options = new MarkerOptions();
+                                options.position(new LatLng(latitude, longitude));
+                                options.title(name);
+                                options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
+                                Marker marker = mMap.addMarker(options);
+                                // 마커에 고유한 ID를 설정합니다.
+                                marker.setTag(name);
+                                // markerMap에도 추가합니다.
+                                markerMap.put(name, marker);
+                            }
+                        } else {
+                            Log.w(TAG, "Error getting documents.", task.getException());
+                        }
+                    }
+                });
+    }
+
+
+    private void showAlertDialog(final Marker marker, boolean isBookmarked) {
+        // 대화상자를 만듭니다.
+        AlertDialog.Builder builder = new AlertDialog.Builder(AcneClinicRecommendationOnGoogleMapActivity.this);
+        builder.setTitle(marker.getTitle());
+        if (isBookmarked) {
+            // 마커가 이미 북마크된 경우, '북마크 삭제' 옵션과 '네이버 지도에서 보기' 옵션을 추가합니다.
+            builder.setItems(R.array.options_with_unbookmark_and_naver_map, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    if (which == 0) {
+                        // '북마크 삭제'를 선택했을 때
+                        removeBookmark(marker.getTitle());
+                    } else if (which == 1) {
+                        // '네이버 지도에서 보기'를 선택했을 때
+                        openNaverMap(marker.getTitle());
+                    }
+                }
+            });
+        } else {
+            // 마커가 북마크되지 않은 경우, '북마크 추가' 옵션과 '네이버 지도에서 보기' 옵션을 추가합니다.
+            builder.setItems(R.array.options_and_naver_map, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    if (which == 0) {
+                        // '북마크에 추가'를 선택했을 때
+                        saveBookmark(marker.getPosition(), marker.getTitle());
+                    } else if (which == 1) {
+                        // '네이버 지도에서 보기'를 선택했을 때
+                        openNaverMap(marker.getTitle());
+                    }
+                }
+            });
+        }
+        builder.create().show();
+    }
+
+    private void openNaverMap(String placeName) {
+        // 네이버 지도 앱의 패키지 이름
+        String packageName = "com.nhn.android.nmap";
+        Intent intent;
+
+        try {
+            // 네이버 지도 앱이 설치되어 있는지 확인
+            getPackageManager().getPackageInfo(packageName, 0);
+
+            // 네이버 지도 앱이 설치되어 있으면, 해당 앱을 열고 검색어를 전달
+            intent = new Intent(Intent.ACTION_VIEW, Uri.parse("nmap://place?query=" + Uri.encode(placeName) + "&appname=com.example.acneapplication"));
+            intent.addCategory(Intent.CATEGORY_BROWSABLE);
+
+        } catch (PackageManager.NameNotFoundException e) {
+            // 네이버 지도 앱이 설치되어 있지 않으면, 플레이 스토어에서 앱 페이지를 엽니다.
+            intent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + packageName));
+        }
+
+        startActivity(intent);
+    }
+
+    private void saveBookmark(LatLng position, String name) {
+        // Firestore 인스턴스를 가져옵니다.
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // 저장할 데이터를 만듭니다.
+        Map<String, Object> bookmark = new HashMap<>();
+        bookmark.put("latitude", position.latitude);
+        bookmark.put("longitude", position.longitude);
+        bookmark.put("name", name); // 장소의 이름을 추가합니다.
+
+        // Firestore 데이터베이스에 데이터를 추가합니다.
+        db.collection("bookmark_places")
+                .document(name)
+                .set(bookmark)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        // 북마크를 추가한 후에는 지도를 새로고침하여 모든 마커를 다시 로드합니다.
+                        //mMap.clear(); // 지도상의 모든 마커를 삭제합니다.
+                        markerMap.clear(); // markerMap을 비웁니다.
+                        fetchBookmarkedPlaces(); // Firestore에서 북마크된 장소 확인하여 노란색 마커로 표시
+
+                        // 토스트 메시지를 출력합니다.
+                        Toast.makeText(AcneClinicRecommendationOnGoogleMapActivity.this,  "해당 피부과가 북마크에 추가되었습니다 :)", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+
+
+    private void removeBookmark(String name) {
+        // Firestore 인스턴스를 가져옵니다.
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Firestore 데이터베이스에서 데이터를 삭제합니다.
+        db.collection("bookmark_places")
+                .document(name)
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        // 북마크를 삭제한 후에는 해당 마커의 색상을 변경하고 markerMap에서 제거합니다.
+                        Marker marker = changeMarkerColor(name, BitmapDescriptorFactory.HUE_RED);
+                        if (marker != null) {
+                            markerMap.remove(name);
+                        }
+                        // 토스트 메시지를 출력합니다.
+                        Toast.makeText(AcneClinicRecommendationOnGoogleMapActivity.this, "해당 피부과가 북마크에서 삭제되었습니다 :/", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+
+
+    private Marker changeMarkerColor(String name, float color) {
+        Marker marker = markerMap.get(name);
+        if (marker != null) {
+            marker.setIcon(BitmapDescriptorFactory.defaultMarker(color));
+        }
+        return marker;
+    }
+
+    private void changeMarkerColor(Marker marker, float color) {
+        marker.setIcon(BitmapDescriptorFactory.defaultMarker(color));
+    }
+
 
     @Override
     protected void onResume() {

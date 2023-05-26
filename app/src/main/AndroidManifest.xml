@@ -10,6 +10,11 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
@@ -20,10 +25,25 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true"
         tools:targetApi="31">
+        <activity
+            android:name=".BookMarkFunc.BookMarkActivity"
+            android:exported="false" />
+        <activity
+            android:name=".kakaoMapFiles.KakaoMapTestActivity"
+            android:exported="true" />
 
+        <meta-data
+            android:name="com.kakao.sdk.AppKey"
+            android:value="7dfe2c1adac9c24d214c624c654cc391" />
+
+        <activity
+            android:name=".MyPageActivity"
+            android:exported="false" />
 
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
@@ -32,13 +52,12 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCK1j6BJCME6fcj2PSvWIHP1RXr4QMgP7I" />
 
-
         <activity
             android:name=".AcneClinicRecommendationOnGoogleMapActivity"
             android:exported="true" />
         <activity
-            android:name=".AcneClinicRecommendationOnNaverMapsActivity"
-            android:exported="false" />
+            android:name=".NaverMapsFiles.AcneClinicRecommendationOnNaverMapsActivity"
+            android:exported="true" />
         <activity
             android:name=".AcnePustularTreatActivity"
             android:exported="false" />
@@ -71,10 +90,10 @@
         </activity>
 
         <activity
-            android:name=".CameraActivity"
+            android:name=".STOP_USING_CameraActivity"
             android:screenOrientation="fullSensor" />
         <activity
-            android:name=".GalleryActivity"
+            android:name=".AcneClassifyFunctionActivity"
             android:screenOrientation="fullSensor" />
 
         <provider

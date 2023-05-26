@@ -1,4 +1,4 @@
-package com.example.acneapplication;
+package com.example.acneapplication.NaverMapsFiles;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;

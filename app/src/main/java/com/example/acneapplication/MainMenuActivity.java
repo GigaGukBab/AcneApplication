@@ -1,5 +1,6 @@
 package com.example.acneapplication;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -14,15 +15,18 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.bumptech.glide.Glide;
+import com.example.acneapplication.BookMarkFunc.BookMarkActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.api.client.http.javanet.NetHttpTransport;
@@ -52,6 +56,8 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
     private View customView;
     private String userNickname;
     private String userProfilePictureUrl;
+    // 종료를 위한 플래그
+    private boolean isExitFlag = false;
 
 
     // FetchVideoTask를 내부 클래스로 이동합니다.
@@ -124,21 +130,18 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
 
-        // customViewContainer 초기화
         customViewContainer = findViewById(R.id.custom_view_container);
 
         Intent intent = getIntent();
-        String nickname = intent.getStringExtra("nickname"); //GoogleLoginActivity로부터 nickname 전달받음
+        String nickname = intent.getStringExtra("nickname");
         String profilePictureUrl = intent.getStringExtra("profile_picture");
 
         userNickname = getIntent().getStringExtra("nickname");
         userProfilePictureUrl = getIntent().getStringExtra("profile_picture");
 
-        // 사용자 이름 및 프로필 사진 가져오기
         String displayName = getIntent().getStringExtra("displayName");
         String photoUrl = getIntent().getStringExtra("photoUrl");
 
-        // NavigationView에서 헤더 뷰 참조 가져오기
         NavigationView navigationView = findViewById(R.id.nav_view);
         View headerView = navigationView.getHeaderView(0);
         TextView navHeaderTextView = headerView.findViewById(R.id.nav_header_nickname);
@@ -146,13 +149,11 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
 
         navHeaderTextView.setText(nickname);
 
-        // 이미지 로딩 라이브러리인 Glide를 사용하여 프로필 사진을 로드하고 ImageView에 설정
         Glide.with(this)
                 .load(profilePictureUrl)
                 .circleCrop()
                 .into(navHeaderImageView);
 
-        // 사용자 이름 및 프로필 사진 설정
         if (displayName != null) {
             profileName.setText(displayName);
         }
@@ -162,7 +163,6 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
                     .into(profileImage);
         }
 
-        // Drawer setup
         drawer = findViewById(R.id.drawer_layout);
         NavigationView nav_view = findViewById(R.id.nav_view);
         nav_view.setNavigationItemSelectedListener(this);
@@ -172,11 +172,9 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
         toggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        // WebView 및 channelSource 초기화
         webView = findViewById(R.id.web_view);
         channelSource = findViewById(R.id.channel_source);
 
-        // WebView 설정
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setLoadWithOverviewMode(true);
@@ -184,27 +182,25 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
         webSettings.setBuiltInZoomControls(true);
         webSettings.setDisplayZoomControls(false);
         webSettings.setMediaPlaybackRequiresUserGesture(false);
-        webSettings.setAllowUniversalAccessFromFileURLs(true); // 이 부분 추가
+        webSettings.setAllowUniversalAccessFromFileURLs(true);
         webView.setWebChromeClient(new WebChromeClient());
         webView.setWebViewClient(new WebViewClient());
 
         Button galleryBtn = findViewById(R.id.gallaryBtn);
         galleryBtn.setOnClickListener(view -> {
-            Intent i = new Intent(MainMenuActivity.this, GalleryActivity.class);
+            Intent i = new Intent(MainMenuActivity.this, AcneClassifyFunctionActivity.class);
             startActivity(i);
         });
 
-        Button cameraBtn = findViewById(R.id.cameraBtn);
-        cameraBtn.setOnClickListener(view -> {
-            Intent i = new Intent(MainMenuActivity.this, CameraActivity.class);
-            startActivity(i);
-        });
+//        Button cameraBtn = findViewById(R.id.cameraBtn);
+//        cameraBtn.setOnClickListener(view -> {
+//            Intent i = new Intent(MainMenuActivity.this, CameraActivity.class);
+//            startActivity(i);
+//        });
 
-        // FetchVideoTask 실행
-        String keyword = generateDailyKeyword(); // 매일 다른 검색어 생성
+        String keyword = generateDailyKeyword();
         new FetchVideoTask().execute(keyword);
 
-        // WebView 설정 및 웹뷰 클라이언트 설정
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onShowCustomView(View view, CustomViewCallback callback) {
@@ -225,16 +221,19 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
             }
         });
 
-        // 하단 탭바 리스너 설정
-        // 하단 탭바에 대한 멤버 변수 추가
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
-//                    case R.id.navigation_mypage:
-//                        startActivity(new Intent(MainMenuActivity.this, MyPageActivity.class));
-//                        break;
+                    case R.id.navigation_mypage:
+                        Intent MyPageIntent = new Intent(MainMenuActivity.this, MyPageActivity.class);
+                        MyPageIntent.putExtra("nickname", nickname);
+                        MyPageIntent.putExtra("profile_picture", profilePictureUrl);
+                        MyPageIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
+                        MyPageIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
+                        startActivity(MyPageIntent);
+                        break;
                     case R.id.navigation_home:
                         Intent MainMenuIntent = new Intent(MainMenuActivity.this, MainMenuActivity.class);
                         MainMenuIntent.putExtra("nickname", nickname);
@@ -244,7 +243,12 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
                         startActivity(MainMenuIntent);
                         break;
 //                    case R.id.navigation_searchPage:
-//                        startActivity(new Intent(MainMenuActivity.this, SearchActivity.class));
+//                        Intent SearchPageIntent = new Intent(MainMenuActivity.this, SearchActivity.class);
+//                        SearchPageIntent.putExtra("nickname", nickname);
+//                        SearchPageIntent.putExtra("profile_picture", profilePictureUrl);
+//                        SearchPageIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
+//                        SearchPageIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
+//                        startActivity(SearchPageIntent);
 //                        break;
                     default:
                         break;
@@ -253,6 +257,7 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
             }
         });
     }
+
 
     private String generateDailyKeyword() {
         String[] keywords = {
@@ -265,7 +270,7 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
                 "결정성 여드름 피부 관리",
                 "여드름 짜는 법",
                 "여드름 짜야하는 시기",
-                "노란색 고름 처리법"
+                "여드름 노란 고름"
                 // 더 많은 검색어를 추가할 수 있습니다
         };
 
@@ -319,17 +324,17 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
                 AcneClinicRecommendationtMenuIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
                 startActivity(AcneClinicRecommendationtMenuIntent);
                 break;
-                // 미구현
-//            case R.id.nav_mypage:
-//                startActivity(new Intent(MainMenuActivity.this, HistoryMenuActivity.class));
-//                break;
-//            case R.id.nav_bookmark:
-//                startActivity(new Intent(MainMenuActivity.this, AcneTreatmentActivity.class));
-//                break;
+            case R.id.nav_bookmark:
+                Intent AcneClinicBookmarkIntent = new Intent(MainMenuActivity.this, BookMarkActivity.class);
+                AcneClinicBookmarkIntent.putExtra("nickname", userNickname);
+                AcneClinicBookmarkIntent.putExtra("profile_picture", userProfilePictureUrl);
+                AcneClinicBookmarkIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
+                AcneClinicBookmarkIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
+                startActivity(AcneClinicBookmarkIntent);
+                break;
             default:
                 break;
         }
-
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -339,12 +344,34 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            // Custom View를 만든다
+            LinearLayout layout = new LinearLayout(this);
+            layout.setOrientation(LinearLayout.VERTICAL);
+
+            // ImageView를 추가한다
+            ImageView image = new ImageView(this);
+            image.setImageResource(R.drawable.acne_searching); // 여기서 R.drawable.acne_check는 예시로, 실제로 사용하려면 해당 이미지 리소스가 필요합니다
+            layout.addView(image);
+
+            // TextView를 추가한다
+            TextView text = new TextView(this);
+            text.setText("여드름 한 번 더 체크해 보세요~");
+            layout.addView(text);
+
+            // AlertDialog를 만든다
+            new AlertDialog.Builder(this)
+                    .setView(layout)  // 여기서 만든 Custom View를 설정한다
+                    .setCancelable(false)
+                    .setPositiveButton("화면으로 돌아가기", null)
+                    .setNegativeButton("종료", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // 앱을 종료시킨다
+                            finishAffinity();  // 모든 액티비티를 종료시킨다
+                            System.exit(0);  // 시스템을 종료시킨다
+                        }
+                    })
+                    .show();
         }
     }
-
-
 }
-
-
-

@@ -3,4 +3,11 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- 테마를 사용자 정의하십시오. -->
     </style>
+
+    <!-- Add this new style -->
+    <style name="BottomNavigationTheme" parent="Widget.MaterialComponents.BottomNavigationView.Colored">
+        <item name="itemIconTint">@color/bottom_navigation_color</item>
+        <item name="itemTextColor">@color/bottom_navigation_color</item>
+        <item name="colorPrimary">@color/bottom_navigation_selected_color</item>
+    </style>
 </resources>

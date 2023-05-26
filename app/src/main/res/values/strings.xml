@@ -3,4 +3,7 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="google_maps_key">AIzaSyAphl153EOFlmjitCEPHog8Mp6KS1dysHQ</string>
+    <string name="add_to_bookmark">북마크에 추가</string>
+    <string name="remove_from_bookmark">북마크에서 삭제</string>
+    <string name="view_on_naver_map">네이버 지도에서 보기</string>
 </resources>

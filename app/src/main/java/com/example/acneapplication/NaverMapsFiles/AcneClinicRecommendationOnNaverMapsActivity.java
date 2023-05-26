@@ -1,27 +1,20 @@
-package com.example.acneapplication;
+package com.example.acneapplication.NaverMapsFiles;
 
 import android.Manifest;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import com.bumptech.glide.Glide;
-import com.google.android.material.navigation.NavigationView;
+import com.example.acneapplication.R;
 import com.google.gson.Gson;
 import com.naver.maps.geometry.LatLng;
 import com.naver.maps.map.LocationTrackingMode;
@@ -40,7 +33,6 @@ import org.osgeo.proj4j.ProjCoordinate;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -71,98 +63,14 @@ public class AcneClinicRecommendationOnNaverMapsActivity extends AppCompatActivi
         locationSource = new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
         checkLocationPermission();
 
-        // 사용자 프로필 이미지, 닉네임 처리 부분 코드
-        Intent intent = getIntent();
-        String nickname = intent.getStringExtra("nickname"); //GoogleLoginActivity로부터 nickname 전달받음
-        String profilePictureUrl = intent.getStringExtra("profile_picture");
+//      사용자 프로필 이미지, 닉네임 처리 부분 코드 시작    //
 
-        // 사용자 이름 및 프로필 사진 가져오기
-        String displayName = getIntent().getStringExtra("displayName");
-        String photoUrl = getIntent().getStringExtra("photoUrl");
-
-        // NavigationView에서 헤더 뷰 참조 가져오기
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        View headerView = navigationView.getHeaderView(0);
-        TextView navHeaderTextView = headerView.findViewById(R.id.nav_header_nickname);
-        ImageView navHeaderImageView = headerView.findViewById(R.id.nav_header_profile_picture);
-
-        navHeaderTextView.setText(nickname);
-
-        // 이미지 로딩 라이브러리인 Glide를 사용하여 프로필 사진을 로드하고 ImageView에 설정
-        Glide.with(this)
-                .load(profilePictureUrl)
-                .circleCrop()
-                .into(navHeaderImageView);
-
-        // 사용자 이름 및 프로필 사진 설정
-        if (displayName != null) {
-            navHeaderTextView.setText(displayName);
-        }
-        if (photoUrl != null) {
-            Glide.with(this)
-                    .load(photoUrl)
-                    .circleCrop()
-                    .into(navHeaderImageView);
-        }
-
-        // onCreate 메서드 내에 아래 코드 추가
-        drawerLayout = findViewById(R.id.drawer_layout);
-        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-
-        drawerLayout.addDrawerListener(actionBarDrawerToggle);
-        actionBarDrawerToggle.syncState();
-
-        // 홈 버튼을 사용하여 Drawer를 열고 닫을 수 있도록 설정
-        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-
-        navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(item -> {
-            int id = item.getItemId();
-
-            Intent intent1;
-            switch (id) {
-//                    case R.id.nav_mypage:
-//                        intent = new Intent(AcneClinicRecommendationActivity.this, MyPageActivity.class);
-//                        startActivity(intent);
-//                        break;
-                case R.id.nav_history:
-                    Intent historyMenuIntent = new Intent(AcneClinicRecommendationOnNaverMapsActivity.this, HistoryMenuActivity.class);
-                    historyMenuIntent.putExtra("nickname", nickname);
-                    historyMenuIntent.putExtra("profile_picture", profilePictureUrl);
-                    historyMenuIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
-                    historyMenuIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
-                    startActivity(historyMenuIntent);
-                    break;
-                case R.id.nav_acne_treatment:
-                    Intent AcneTreatmentMenuIntent = new Intent(AcneClinicRecommendationOnNaverMapsActivity.this, AcneTreatmentActivity.class);
-                    AcneTreatmentMenuIntent.putExtra("nickname", nickname);
-                    AcneTreatmentMenuIntent.putExtra("profile_picture", profilePictureUrl);
-                    AcneTreatmentMenuIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
-                    AcneTreatmentMenuIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
-                    startActivity(AcneTreatmentMenuIntent);
-                    break;
-//                    case R.id.nav_bookmark:
-//                        intent = new Intent(AcneClinicRecommendationActivity.this, BookmarkActivity.class);
-//                        startActivity(intent);
-//                        break;
-                case R.id.nav_clinicRecommend:
-                    break;
-                default:
-                    break;
-            }
-            drawerLayout.closeDrawer(GravityCompat.START);
-            return true;
-        });
-        // 사용자 프로필 이미지, 닉네임 처리 부분 코드 종료료
-
-
+//        사용자 프로필 이미지, 닉네임 처리 부분 코드 종료      //
 
         // 지도초기화
-        MapFragment mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        MapFragment mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.mapView);
         assert mapFragment != null;
         mapFragment.getMapAsync(this);
-
-
     }
 
     public static class SkinClinic {
@@ -190,7 +98,7 @@ public class AcneClinicRecommendationOnNaverMapsActivity extends AppCompatActivi
         String clientSecret = "Qc0bvWFohc";
         String query = "피부과";
         int display = 20; // 반환 결과 개수 설정
-        int radius = 20000; // 검색 반경 설정 (단위: m)
+        int radius = 5000; // 검색 반경 설정 (단위: m)
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://openapi.naver.com/")
@@ -342,30 +250,6 @@ public class AcneClinicRecommendationOnNaverMapsActivity extends AppCompatActivi
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
-        }
-    }
-
-
-
-
-
-    //드로어 관련 함수
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-        // 기존 코드 유지
-        return super.onOptionsItemSelected(item);
-    }
-
-    //드로어 관련 함수
-    @Override
-    public void onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
         }
     }
 
