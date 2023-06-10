@@ -307,7 +307,7 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
                 historyMenuIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
                 startActivity(historyMenuIntent);
                 break;
-                // 구현 중
+            // 구현 중
             case R.id.nav_acne_treatment:
                 Intent AcneTreatmentMenuIntent = new Intent(MainMenuActivity.this, AcneTreatmentActivity.class);
                 AcneTreatmentMenuIntent.putExtra("nickname", userNickname);

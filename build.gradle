@@ -6,6 +6,7 @@ buildscript {
         maven { url 'https://naver.jfrog.io/artifactory/maven/' }
         maven { url 'https://navercorp.bintray.com/maps' }
         maven{ url 'https://devrepo.kakao.com/nexus/content/groups/public/' }
+        maven { url 'https://jitpack.io' }
     }
 
     dependencies {

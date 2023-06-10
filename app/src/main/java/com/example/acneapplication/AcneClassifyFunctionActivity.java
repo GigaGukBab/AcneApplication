@@ -125,10 +125,10 @@ public class AcneClassifyFunctionActivity extends AppCompatActivity {
         treatBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (bitmap == null) {
-                    Toast.makeText(AcneClassifyFunctionActivity.this, "이미지가 없습니다. 이미지를 선택해주세요.", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+//                if (bitmap == null) {
+//                    Toast.makeText(AcneClassifyFunctionActivity.this, "이미지가 없습니다. 이미지를 선택해주세요.", Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
 
                 Intent intent;
 
@@ -258,13 +258,28 @@ public class AcneClassifyFunctionActivity extends AppCompatActivity {
 
             if(bitmap != null) {
                 Pair<String, Float> output = cls.classify(bitmap);
+                classifiedAcneType = output.first;
+
+                // 여드름 종류를 한글로 변환
+                String acneTypeKorean = output.first;
+                if (acneTypeKorean.contains("acne_comedonia")) {
+                    acneTypeKorean = acneTypeKorean.replace("acne_comedonia", "면포성 여드름");
+                } else if (acneTypeKorean.contains("acne_papules")) {
+                    acneTypeKorean = acneTypeKorean.replace("acne_papules", "구진성 여드름");
+                } else if (acneTypeKorean.contains("acne_pustular")) {
+                    acneTypeKorean = acneTypeKorean.replace("acne_pustular", "농포성 여드름");
+                }
+
                 String resultStr = String.format(Locale.ENGLISH,
                         "여드름 종류 : %s, 확률 : %.2f%%",
-                        output.first, output.second * 100);
+                        acneTypeKorean, output.second * 100);
 
-                imageView.setImageBitmap(bitmap);
+
                 resultTextView.setText(resultStr);
+                imageView.setImageBitmap(bitmap);
 
+                // 분류명에 따른 처치법을 firestore에서 가져옴
+                getTreatmentForAcne(output.first+"_treatment_doc");
                 // 이미지 파일 이름 추출
                 String imageName = getImageNameFromUri(selectedImageUri);
 
