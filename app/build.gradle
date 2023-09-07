@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'com.google.gms.google-services'
+    id 'org.jetbrains.kotlin.android'
 }
 
 android {
@@ -9,6 +10,9 @@ android {
 
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
     }
 
     defaultConfig {
@@ -19,6 +23,9 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables {
+            useSupportLibrary true
+        }
     }
 
     sourceSets {
@@ -33,71 +40,88 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    buildFeatures {
+        compose true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion '1.4.3'
+    }
 }
 
 dependencies {
-
+    // AndroidX & UI Libraries
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'com.google.android.libraries.places:places:3.1.0'
+    implementation 'androidx.activity:activity-compose:1.7.0'
+    implementation 'androidx.annotation:annotation:1.6.0'
+    implementation 'com.google.android.material:material:1.8.0'
 
+    // Compose Libraries
+    implementation platform('androidx.compose:compose-bom:2023.03.00')
+    implementation 'androidx.compose.ui:ui'
+    implementation 'androidx.compose.ui:ui-graphics'
+    implementation 'androidx.compose.ui:ui-tooling-preview'
+    implementation 'androidx.compose.material3:material3'
+    debugImplementation 'androidx.compose.ui:ui-tooling'
+    debugImplementation 'androidx.compose.ui:ui-test-manifest'
+    androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
+
+    // Testing Libraries
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
+    // TensorFlow
     implementation 'org.tensorflow:tensorflow-lite:2.4.0'
     implementation 'org.tensorflow:tensorflow-lite-support:0.1.0'
 
+    // Google Services & Firebase
     implementation 'com.google.android.gms:play-services-auth:20.5.0'
-
-    implementation 'com.google.firebase:firebase-analytics:21.2.2'
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'
+    implementation 'com.google.android.gms:play-services-places:17.0.0'
+    implementation 'com.google.android.gms:play-services-location:17.0.0'
+    implementation 'com.google.android.libraries.places:places:3.1.0'
+    implementation platform('com.google.firebase:firebase-bom:31.2.3')
+    implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-core:21.1.1'
     implementation 'com.google.firebase:firebase-auth:21.1.0'
+    implementation 'com.google.firebase:firebase-storage'
+    implementation 'com.google.firebase:firebase-database'
+    implementation 'com.google.firebase:firebase-firestore'
 
+    // Glide
     implementation 'com.github.bumptech.glide:glide:4.15.1'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
 
-    implementation platform('com.google.firebase:firebase-bom:31.2.3')
-    implementation 'com.google.firebase:firebase-storage'
-    implementation 'com.google.firebase:firebase-database'
-
+    // Room
     implementation 'androidx.room:room-runtime:2.5.1'
     annotationProcessor 'androidx.room:room-compiler:2.5.1'
 
-    implementation 'com.google.firebase:firebase-firestore'
-
-    implementation 'androidx.annotation:annotation:1.6.0'
-
+    // Kotlin
     implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.8.10'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.10'
 
+    // Google APIs
     implementation 'com.google.api-client:google-api-client:1.31.5'
     implementation 'com.google.api-client:google-api-client-gson:1.31.5'
     implementation 'com.google.apis:google-api-services-youtube:v3-rev222-1.25.0'
 
-    implementation 'com.google.android.gms:play-services-maps:18.1.0'
-    implementation 'com.google.android.gms:play-services-places:17.0.0'
-
+    // Other Libraries
     implementation 'com.naver.maps:map-sdk:3.16.0'
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
-
-    implementation 'com.google.android.material:material:1.8.0'
-
     implementation 'org.osgeo:proj4j:0.1.0'
-
     implementation 'com.android.volley:volley:1.2.1'
-
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
-
-    // implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation files('libs/libDaumMapAndroid.jar')
-
-    implementation 'com.google.android.gms:play-services-location:17.0.0'
-
-
-
+    implementation 'com.kakao.maps.open:android:2.5.0'
 }
