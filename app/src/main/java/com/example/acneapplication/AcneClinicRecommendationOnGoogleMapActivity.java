@@ -393,11 +393,16 @@ public class AcneClinicRecommendationOnGoogleMapActivity extends AppCompatActivi
         builder.create().show();
     }
 
+    private static final String NAVER_MAP_PACKAGE_NAME = "com.nhn.android.nmap";
+    private static final String NAVER_MAP_URI_FORMAT = "geo:0,0?q=%s";
+    private static final String STORE_URI_FORMAT = "market://details?id=%s";
+
     public void openNaverMap(String placeName) {
         try {
             // 네이버 지도 앱에서 주어진 장소명으로 검색
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=" + Uri.encode(placeName)));
-            intent.setPackage("com.nhn.android.nmap");
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(String.format(NAVER_MAP_URI_FORMAT, Uri.encode(placeName))));
+            intent.setPackage(NAVER_MAP_PACKAGE_NAME);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
             // 해당 Intent를 처리할 수 있는 액티비티가 있는지 확인
             if (intent.resolveActivity(getPackageManager()) != null) {
@@ -405,7 +410,7 @@ public class AcneClinicRecommendationOnGoogleMapActivity extends AppCompatActivi
             } else {
                 // 네이버 지도 앱이 설치되어 있지 않은 경우, 토스트 메시지 출력 후 Google Play 스토어 앱으로 네이버 지도 앱 설치 페이지로 이동
                 Toast.makeText(this, "네이버 지도 앱이 설치되어 있지 않습니다. 설치 페이지로 이동합니다.", Toast.LENGTH_SHORT).show();
-                Intent storeIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.nhn.android.nmap"));
+                Intent storeIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(String.format(STORE_URI_FORMAT, NAVER_MAP_PACKAGE_NAME)));
                 startActivity(storeIntent);
             }
         } catch (Exception e) {
@@ -413,14 +418,6 @@ public class AcneClinicRecommendationOnGoogleMapActivity extends AppCompatActivi
             Toast.makeText(this, "네이버 지도를 여는 중 오류 발생", Toast.LENGTH_SHORT).show();
         }
     }
-
-
-
-
-
-
-
-
 
     private void saveBookmark(LatLng position, String name) {
         // Firestore 인스턴스를 가져옵니다.

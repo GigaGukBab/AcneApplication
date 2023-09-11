@@ -16,6 +16,10 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" tools:ignore="ScopedStorage" />
 
+    <queries>
+        <package android:name="com.nhn.android.nmap" />
+    </queries>
+
     <!-- Application Attributes -->
     <application
         android:allowBackup="true"
