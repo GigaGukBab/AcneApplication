@@ -393,25 +393,30 @@ public class AcneClinicRecommendationOnGoogleMapActivity extends AppCompatActivi
         builder.create().show();
     }
 
-    private void openNaverMap(String placeName) {
-        // 네이버 지도 앱의 패키지 이름
-        String packageName = "com.nhn.android.nmap";
-        Intent intent;
+    private static final String NAVER_MAP_PACKAGE_NAME = "com.nhn.android.nmap";
+    private static final String NAVER_MAP_URI_FORMAT = "geo:0,0?q=%s";
+    private static final String STORE_URI_FORMAT = "market://details?id=%s";
 
+    public void openNaverMap(String placeName) {
         try {
-            // 네이버 지도 앱이 설치되어 있는지 확인
-            getPackageManager().getPackageInfo(packageName, 0);
+            // 네이버 지도 앱에서 주어진 장소명으로 검색
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(String.format(NAVER_MAP_URI_FORMAT, Uri.encode(placeName))));
+            intent.setPackage(NAVER_MAP_PACKAGE_NAME);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-            // 네이버 지도 앱이 설치되어 있으면, 해당 앱을 열고 검색어를 전달
-            intent = new Intent(Intent.ACTION_VIEW, Uri.parse("nmap://place?query=" + Uri.encode(placeName) + "&appname=com.example.acneapplication"));
-            intent.addCategory(Intent.CATEGORY_BROWSABLE);
-
-        } catch (PackageManager.NameNotFoundException e) {
-            // 네이버 지도 앱이 설치되어 있지 않으면, 플레이 스토어에서 앱 페이지를 엽니다.
-            intent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + packageName));
+            // 해당 Intent를 처리할 수 있는 액티비티가 있는지 확인
+            if (intent.resolveActivity(getPackageManager()) != null) {
+                startActivity(intent);
+            } else {
+                // 네이버 지도 앱이 설치되어 있지 않은 경우, 토스트 메시지 출력 후 Google Play 스토어 앱으로 네이버 지도 앱 설치 페이지로 이동
+                Toast.makeText(this, "네이버 지도 앱이 설치되어 있지 않습니다. 설치 페이지로 이동합니다.", Toast.LENGTH_SHORT).show();
+                Intent storeIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(String.format(STORE_URI_FORMAT, NAVER_MAP_PACKAGE_NAME)));
+                startActivity(storeIntent);
+            }
+        } catch (Exception e) {
+            Log.e("openNaverMap", "네이버 지도를 여는 중 오류 발생", e);
+            Toast.makeText(this, "네이버 지도를 여는 중 오류 발생", Toast.LENGTH_SHORT).show();
         }
-
-        startActivity(intent);
     }
 
     private void saveBookmark(LatLng position, String name) {

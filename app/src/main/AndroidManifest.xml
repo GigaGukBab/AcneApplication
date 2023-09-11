@@ -2,9 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-feature
-        android:name="android.hardware.camera"
-        android:required="true" />
+    <!-- Permissions -->
+    <uses-feature android:name="android.hardware.camera" android:required="true" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -15,10 +14,13 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        tools:ignore="ScopedStorage" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" tools:ignore="ScopedStorage" />
 
+    <queries>
+        <package android:name="com.nhn.android.nmap" />
+    </queries>
+
+    <!-- Application Attributes -->
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -30,81 +32,39 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-        <activity
-            android:name=".BookMarkFunc.BookMarkActivity"
-            android:exported="false" />
-        <activity
-            android:name=".kakaoMapFiles.KakaoMapTestActivity"
-            android:exported="true" />
 
-        <meta-data
-            android:name="com.kakao.sdk.AppKey"
-            android:value="7dfe2c1adac9c24d214c624c654cc391" />
+        <!-- Meta-Data -->
+        <meta-data android:name="com.kakao.sdk.AppKey" android:value="7dfe2c1adac9c24d214c624c654cc391" />
+        <meta-data android:name="com.naver.maps.map.CLIENT_ID" android:value="qqpxkmsi4j" />
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyCK1j6BJCME6fcj2PSvWIHP1RXr4QMgP7I" />
 
-        <activity
-            android:name=".MyPageActivity"
-            android:exported="false" />
-
-        <meta-data
-            android:name="com.naver.maps.map.CLIENT_ID"
-            android:value="qqpxkmsi4j" />
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCK1j6BJCME6fcj2PSvWIHP1RXr4QMgP7I" />
-
-        <activity
-            android:name=".AcneClinicRecommendationOnGoogleMapActivity"
-            android:exported="true" />
-        <activity
-            android:name=".NaverMapsFiles.AcneClinicRecommendationOnNaverMapsActivity"
-            android:exported="true" />
-        <activity
-            android:name=".AcnePustularTreatActivity"
-            android:exported="false" />
-        <activity
-            android:name=".AcnePapulesTreatActivity"
-            android:exported="false" />
-        <activity
-            android:name=".AcneComedoniaTreatActivity"
-            android:exported="false" />
-        <activity
-            android:name=".AcneTreatmentActivity"
-            android:exported="false" />
-        <activity
-            android:name=".HistoryMenuActivity"
-            android:exported="false"
-            android:screenOrientation="fullSensor" />
-        <activity
-            android:name=".MainMenuActivity"
-            android:exported="true"
-            android:screenOrientation="fullSensor" />
-
-        <activity
-            android:name=".GoogleLoginActivity"
-            android:exported="true">
+        <!-- Activities -->
+        <activity android:name=".BookMarkFunc.BookMarkActivity" android:exported="false" />
+        <activity android:name=".MyPageActivity" android:exported="false" />
+        <activity android:name=".AcneClinicRecommendationOnGoogleMapActivity" android:exported="true" />
+        <activity android:name=".NaverMapsFiles.AcneClinicRecommendationOnNaverMapsActivity" android:exported="true" />
+        <activity android:name=".AcnePustularTreatActivity" android:exported="false" />
+        <activity android:name=".AcnePapulesTreatActivity" android:exported="false" />
+        <activity android:name=".AcneComedoniaTreatActivity" android:exported="false" />
+        <activity android:name=".AcneTreatmentActivity" android:exported="false" />
+        <activity android:name=".HistoryMenuActivity" android:exported="false" android:screenOrientation="fullSensor" />
+        <activity android:name=".MainMenuActivity" android:exported="true" android:screenOrientation="fullSensor" />
+        <activity android:name=".GoogleLoginActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".STOP_USING_CameraActivity" android:screenOrientation="fullSensor" />
+        <activity android:name=".AcneClassifyFunctionActivity" android:screenOrientation="fullSensor" />
 
-        <activity
-            android:name=".STOP_USING_CameraActivity"
-            android:screenOrientation="fullSensor" />
-        <activity
-            android:name=".AcneClassifyFunctionActivity"
-            android:screenOrientation="fullSensor" />
-
+        <!-- Providers -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.example.acneapplication"
             android:exported="false"
             android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" />
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths" />
         </provider>
     </application>
-
 </manifest>
