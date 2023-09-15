@@ -20,6 +20,8 @@ import com.bumptech.glide.Glide;
 import com.example.acneapplication.AcneClinicRecommendationOnGoogleMapActivity;
 import com.example.acneapplication.AcneTreatmentActivity;
 import com.example.acneapplication.HistoryMenuActivity;
+import com.example.acneapplication.MainMenuActivity;
+import com.example.acneapplication.MyPageActivity;
 import com.example.acneapplication.R;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -85,6 +87,7 @@ public class BookMarkActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         navigationView = findViewById(R.id.nav_view);
+
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -92,6 +95,14 @@ public class BookMarkActivity extends AppCompatActivity {
 
                 Intent intent;
                 switch (id) {
+                    case R.id.nav_mypage:
+                        Intent MyPageIntent = new Intent(BookMarkActivity.this, MyPageActivity.class);
+                        MyPageIntent.putExtra("nickname", nickname);
+                        MyPageIntent.putExtra("profile_picture", profilePictureUrl);
+                        MyPageIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
+                        MyPageIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
+                        startActivity(MyPageIntent);
+                        break;
                     case R.id.nav_history:
                         Intent historyMenuIntent = new Intent(BookMarkActivity.this, HistoryMenuActivity.class);
                         historyMenuIntent.putExtra("nickname", nickname);
@@ -100,6 +111,7 @@ public class BookMarkActivity extends AppCompatActivity {
                         historyMenuIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
                         startActivity(historyMenuIntent);
                         break;
+                    // 구현 중
                     case R.id.nav_acne_treatment:
                         Intent AcneTreatmentMenuIntent = new Intent(BookMarkActivity.this, AcneTreatmentActivity.class);
                         AcneTreatmentMenuIntent.putExtra("nickname", nickname);
@@ -117,8 +129,12 @@ public class BookMarkActivity extends AppCompatActivity {
                         startActivity(AcneClinicRecommendationtMenuIntent);
                         break;
                     case R.id.nav_bookmark:
-//                        intent = new Intent(BookMarkActivity.this, BookMarkActivity.class);
-//                        startActivity(intent);
+                        Intent AcneClinicBookmarkIntent = new Intent(BookMarkActivity.this, BookMarkActivity.class);
+                        AcneClinicBookmarkIntent.putExtra("nickname", nickname);
+                        AcneClinicBookmarkIntent.putExtra("profile_picture", profilePictureUrl);
+                        AcneClinicBookmarkIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
+                        AcneClinicBookmarkIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
+                        startActivity(AcneClinicBookmarkIntent);
                         break;
                     default:
                         break;
@@ -151,6 +167,13 @@ public class BookMarkActivity extends AppCompatActivity {
         });
     }
 
-
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        // 네비게이션 버튼 클릭 처리
+        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
 }

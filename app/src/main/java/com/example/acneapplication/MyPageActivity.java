@@ -10,7 +10,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -62,6 +64,7 @@ public class MyPageActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private void displayUserNameAndProfileImage() {
         if (currentUser != null) {

@@ -103,9 +103,23 @@ public class HistoryMenuActivity extends AppCompatActivity {
 
                 Intent intent;
                 switch (id) {
-                    case R.id.nav_history:
-                        // 이미 HistoryMenuActivity에 있으므로 아무 작업도 수행하지 않음
+                    case R.id.nav_mypage:
+                        Intent MyPageIntent = new Intent(HistoryMenuActivity.this, MyPageActivity.class);
+                        MyPageIntent.putExtra("nickname", nickname);
+                        MyPageIntent.putExtra("profile_picture", profilePictureUrl);
+                        MyPageIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
+                        MyPageIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
+                        startActivity(MyPageIntent);
                         break;
+                    case R.id.nav_history:
+                        Intent historyMenuIntent = new Intent(HistoryMenuActivity.this, HistoryMenuActivity.class);
+                        historyMenuIntent.putExtra("nickname", nickname);
+                        historyMenuIntent.putExtra("profile_picture", profilePictureUrl);
+                        historyMenuIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
+                        historyMenuIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
+                        startActivity(historyMenuIntent);
+                        break;
+                    // 구현 중
                     case R.id.nav_acne_treatment:
                         Intent AcneTreatmentMenuIntent = new Intent(HistoryMenuActivity.this, AcneTreatmentActivity.class);
                         AcneTreatmentMenuIntent.putExtra("nickname", nickname);
@@ -114,14 +128,6 @@ public class HistoryMenuActivity extends AppCompatActivity {
                         AcneTreatmentMenuIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
                         startActivity(AcneTreatmentMenuIntent);
                         break;
-                    case R.id.nav_bookmark:
-                        Intent AcneClinicBookmarkIntent = new Intent(HistoryMenuActivity.this, BookMarkActivity.class);
-                        AcneClinicBookmarkIntent.putExtra("nickname", nickname);
-                        AcneClinicBookmarkIntent.putExtra("profile_picture", profilePictureUrl);
-                        AcneClinicBookmarkIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
-                        AcneClinicBookmarkIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
-                        startActivity(AcneClinicBookmarkIntent);
-                        break;
                     case R.id.nav_clinicRecommend:
                         Intent AcneClinicRecommendationtMenuIntent = new Intent(HistoryMenuActivity.this, AcneClinicRecommendationOnGoogleMapActivity.class);
                         AcneClinicRecommendationtMenuIntent.putExtra("nickname", nickname);
@@ -129,6 +135,14 @@ public class HistoryMenuActivity extends AppCompatActivity {
                         AcneClinicRecommendationtMenuIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
                         AcneClinicRecommendationtMenuIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
                         startActivity(AcneClinicRecommendationtMenuIntent);
+                        break;
+                    case R.id.nav_bookmark:
+                        Intent AcneClinicBookmarkIntent = new Intent(HistoryMenuActivity.this, BookMarkActivity.class);
+                        AcneClinicBookmarkIntent.putExtra("nickname", nickname);
+                        AcneClinicBookmarkIntent.putExtra("profile_picture", profilePictureUrl);
+                        AcneClinicBookmarkIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
+                        AcneClinicBookmarkIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
+                        startActivity(AcneClinicBookmarkIntent);
                         break;
                     default:
                         break;

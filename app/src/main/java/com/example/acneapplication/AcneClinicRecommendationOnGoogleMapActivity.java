@@ -135,10 +135,14 @@ public class AcneClinicRecommendationOnGoogleMapActivity extends AppCompatActivi
 
             Intent intent1;
             switch (id) {
-//                    case R.id.nav_mypage:
-//                        intent = new Intent(AcneClinicRecommendationActivity.this, MyPageActivity.class);
-//                        startActivity(intent);
-//                        break;
+                case R.id.nav_mypage:
+                    Intent MyPageIntent = new Intent(AcneClinicRecommendationOnGoogleMapActivity.this, MyPageActivity.class);
+                    MyPageIntent.putExtra("nickname", nickname);
+                    MyPageIntent.putExtra("profile_picture", profilePictureUrl);
+                    MyPageIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
+                    MyPageIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
+                    startActivity(MyPageIntent);
+                    break;
                 case R.id.nav_history:
                     Intent historyMenuIntent = new Intent(AcneClinicRecommendationOnGoogleMapActivity.this, HistoryMenuActivity.class);
                     historyMenuIntent.putExtra("nickname", nickname);

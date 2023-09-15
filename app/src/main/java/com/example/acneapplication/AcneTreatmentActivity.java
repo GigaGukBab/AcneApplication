@@ -86,10 +86,14 @@ public class AcneTreatmentActivity extends AppCompatActivity {
 
                 Intent intent;
                 switch (id) {
-//                    case R.id.nav_mypage:
-//                        intent = new Intent(AcneTreatmentActivity.this, MyPageActivity.class);
-//                        startActivity(intent);
-//                        break;
+                   case R.id.nav_mypage:
+                        Intent MyPageIntent = new Intent(AcneTreatmentActivity.this, MyPageActivity.class);
+                        MyPageIntent.putExtra("nickname", nickname);
+                        MyPageIntent.putExtra("profile_picture", profilePictureUrl);
+                        MyPageIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
+                        MyPageIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
+                        startActivity(MyPageIntent);
+                        break;
                     case R.id.nav_history:
                         Intent historyMenuIntent = new Intent(AcneTreatmentActivity.this, HistoryMenuActivity.class);
                         historyMenuIntent.putExtra("nickname", nickname);

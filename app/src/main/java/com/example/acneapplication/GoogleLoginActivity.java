@@ -32,7 +32,10 @@ public class GoogleLoginActivity extends AppCompatActivity implements GoogleApiC
     @Override
     protected void onCreate(Bundle savedInstanceState) { // 앱이 실행될 때 수행되는 곳
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_google_login);
+
+        getSupportActionBar().hide();
 
         // getHashKey();
 

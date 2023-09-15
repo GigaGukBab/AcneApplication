@@ -34,7 +34,7 @@ public class AcnePustularTreatActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_acne_papules_treat);
+        setContentView(R.layout.activity_acne_pustular_treat);
 
         acneTreatmentInfoTextView = findViewById(R.id.acneTreatmentInfoTextView);
 
@@ -133,20 +133,28 @@ public class AcnePustularTreatActivity extends AppCompatActivity {
 
         String documentID = "acne_pustular_treatment_doc";
 
+        // 이 부분이 뷰를 참조하기 전에 실행되어야 합니다. 이 경우, 뷰가 아직 초기화되지 않았기 때문에 null을 반환할 수 있습니다.
+        TextView acneTypeTextView = findViewById(R.id.acneTypeTextView);
+
         db.collection("acne_treatments").document(documentID).get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
                         if (document.exists()) {
 
+                            String acneType = document.getString("acne_type");
                             String acneTreatmentMethod = document.getString("acne_treatment_method");
                             String source = document.getString("source");
 
+                            // 데이터가 null이 아니면 TextView에 설정합니다.
+                            if (acneType != null) {
+                                acneTypeTextView.setText(acneType);
+                            }
+
+                            // 아래는 기존 코드를 유지하면서, TextView 참조 코드를 제거했습니다.
                             TextView acneTreatmentInfoTextView = findViewById(R.id.acneTreatmentInfoTextView);
                             String displayText = "관리법: \n" + acneTreatmentMethod;
-
                             acneTreatmentInfoTextView.setText(displayText);
-
 
                             TextView acneTreatmentInfoSourecTextView = findViewById(R.id.acneTreatmentInfoSourecTextView);
                             String displaySourceText = source;
@@ -168,6 +176,7 @@ public class AcnePustularTreatActivity extends AppCompatActivity {
                         Log.d("TAG", "get failed with ", task.getException());
                     }
                 });
+
     }
 
     @Override

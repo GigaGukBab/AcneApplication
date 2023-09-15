@@ -221,41 +221,41 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
             }
         });
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.navigation_mypage:
-                        Intent MyPageIntent = new Intent(MainMenuActivity.this, MyPageActivity.class);
-                        MyPageIntent.putExtra("nickname", nickname);
-                        MyPageIntent.putExtra("profile_picture", profilePictureUrl);
-                        MyPageIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
-                        MyPageIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
-                        startActivity(MyPageIntent);
-                        break;
-                    case R.id.navigation_home:
-                        Intent MainMenuIntent = new Intent(MainMenuActivity.this, MainMenuActivity.class);
-                        MainMenuIntent.putExtra("nickname", nickname);
-                        MainMenuIntent.putExtra("profile_picture", profilePictureUrl);
-                        MainMenuIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
-                        MainMenuIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
-                        startActivity(MainMenuIntent);
-                        break;
-//                    case R.id.navigation_searchPage:
-//                        Intent SearchPageIntent = new Intent(MainMenuActivity.this, SearchActivity.class);
-//                        SearchPageIntent.putExtra("nickname", nickname);
-//                        SearchPageIntent.putExtra("profile_picture", profilePictureUrl);
-//                        SearchPageIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
-//                        SearchPageIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
-//                        startActivity(SearchPageIntent);
+//        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+//        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+//            @Override
+//            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+//                switch (item.getItemId()) {
+//                    case R.id.navigation_mypage:
+//                        Intent MyPageIntent = new Intent(MainMenuActivity.this, MyPageActivity.class);
+//                        MyPageIntent.putExtra("nickname", nickname);
+//                        MyPageIntent.putExtra("profile_picture", profilePictureUrl);
+//                        MyPageIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
+//                        MyPageIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
+//                        startActivity(MyPageIntent);
 //                        break;
-                    default:
-                        break;
-                }
-                return true;
-            }
-        });
+//                    case R.id.navigation_home:
+//                        Intent MainMenuIntent = new Intent(MainMenuActivity.this, MainMenuActivity.class);
+//                        MainMenuIntent.putExtra("nickname", nickname);
+//                        MainMenuIntent.putExtra("profile_picture", profilePictureUrl);
+//                        MainMenuIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
+//                        MainMenuIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
+//                        startActivity(MainMenuIntent);
+//                        break;
+////                    case R.id.navigation_searchPage:
+////                        Intent SearchPageIntent = new Intent(MainMenuActivity.this, SearchActivity.class);
+////                        SearchPageIntent.putExtra("nickname", nickname);
+////                        SearchPageIntent.putExtra("profile_picture", profilePictureUrl);
+////                        SearchPageIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
+////                        SearchPageIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
+////                        startActivity(SearchPageIntent);
+////                        break;
+//                    default:
+//                        break;
+//                }
+//                return true;
+//            }
+//        });
     }
 
 
@@ -299,6 +299,14 @@ public class MainMenuActivity extends AppCompatActivity implements NavigationVie
     @Override
     public boolean onNavigationItemSelected(MenuItem menuItem) {
         switch (menuItem.getItemId()) {
+            case R.id.nav_mypage:
+                Intent MyPageIntent = new Intent(MainMenuActivity.this, MyPageActivity.class);
+                MyPageIntent.putExtra("nickname", userNickname);
+                MyPageIntent.putExtra("profile_picture", userProfilePictureUrl);
+                MyPageIntent.putExtra("displayName", getIntent().getStringExtra("displayName"));
+                MyPageIntent.putExtra("photoUrl", getIntent().getStringExtra("photoUrl"));
+                startActivity(MyPageIntent);
+                break;
             case R.id.nav_history:
                 Intent historyMenuIntent = new Intent(MainMenuActivity.this, HistoryMenuActivity.class);
                 historyMenuIntent.putExtra("nickname", userNickname);

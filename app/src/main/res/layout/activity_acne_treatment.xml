@@ -8,41 +8,57 @@
     android:fitsSystemWindows="true"
     tools:openDrawer="start">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
         tools:context=".AcneTreatmentActivity">
 
         <TextView
+            android:id="@+id/title_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="16dp"
-            android:text="여드름 종류 별 관리법"
-            android:textSize="30sp" />
+            android:text="여드름 종류별 관리법"
+            android:textSize="30sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/acne_comedonia_treat_btn" />
 
         <Button
             android:id="@+id/acne_comedonia_treat_btn"
-            android:layout_width="300dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="20dp"
-            android:text="면포성 여드름(acne_comedonia) 관리법"/>
-
-        <Button
-            android:id="@+id/acne_papules_treat_btn"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:padding="20dp"
-            android:text="구진성 여드름(acne_papules) 관리법"/>
+            android:layout_margin="16dp"
+            android:layout_marginTop="48dp"
+            android:background="@drawable/rounded_button"
+            android:text="면포성 여드름(acne_comedonia) 관리법"
+            app:layout_constraintTop_toBottomOf="@+id/title_textview"
+            tools:layout_editor_absoluteX="16dp" />
 
         <Button
             android:id="@+id/acne_pustular_treat_btn"
-            android:layout_width="300dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="20dp"
-            android:text="농포성 여드름(acne_pustular) 관리법"/>
+            android:layout_margin="16dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/rounded_button"
+            android:text="농포성 여드름(acne_pustular) 관리법"
+            app:layout_constraintTop_toBottomOf="@+id/acne_papules_treat_btn"
+            tools:layout_editor_absoluteX="16dp" />
 
-    </LinearLayout>
+        <Button
+            android:id="@+id/acne_papules_treat_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/rounded_button"
+            android:text="구진성 여드름(acne_papules) 관리법"
+            app:layout_constraintTop_toBottomOf="@+id/acne_comedonia_treat_btn"
+            tools:layout_editor_absoluteX="16dp" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"

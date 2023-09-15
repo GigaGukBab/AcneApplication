@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">AcneApplication</string>
+    <string name="app_name">아크바이-여드름, 이제 안녕!</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="google_maps_key">AIzaSyAphl153EOFlmjitCEPHog8Mp6KS1dysHQ</string>
