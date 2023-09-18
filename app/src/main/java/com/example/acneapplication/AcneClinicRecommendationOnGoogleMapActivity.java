@@ -36,6 +36,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -56,8 +57,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public class AcneClinicRecommendationOnGoogleMapActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
     private GoogleMap mMap;
@@ -68,9 +71,7 @@ public class AcneClinicRecommendationOnGoogleMapActivity extends AppCompatActivi
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private String TAG;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-
     private HashMap<String, Marker> markerMap = new HashMap<>();
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -174,88 +175,6 @@ public class AcneClinicRecommendationOnGoogleMapActivity extends AppCompatActivi
         // 사용자 프로필 이미지, 닉네임 처리 부분 코드 종료
     }
 
-    private void fetchNearbySkinClinics(LatLng userLocation) {
-        // Places API 초기화
-        Places.initialize(getApplicationContext(), getString(R.string.google_maps_key));
-        PlacesClient placesClient = Places.createClient(this);
-
-        // 검색 반경 설정
-        int radius = 5000; // 5km 반경 내 피부과 검색
-        String[] placeTypes = {"doctor"};
-        String[] keywords = {"피부", "피부과", "피부 클리닉", "여드름 치료", "여드름 흉터치료"};
-        String locationString = userLocation.latitude + "," + userLocation.longitude;
-
-        // RequestQueue 생성
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-
-        // 모든 placeType과 키워드에 대해 요청 수행
-        for (String placeType : placeTypes) {
-            for (String keyword : keywords) {
-                String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + locationString + "&radius=" + radius + "&type=" + placeType + "&keyword=" + keyword + "&key=" + getString(R.string.google_maps_key);
-
-                // 사용자 위치를 기반으로 피부과 검색
-                JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            JSONArray results = response.getJSONArray("results");
-                            for (int i = 0; i < results.length(); i++) {
-                                JSONObject result = results.getJSONObject(i);
-                                JSONObject geometry = result.getJSONObject("geometry");
-                                JSONObject location = geometry.getJSONObject("location");
-                                double lat = location.getDouble("lat");
-                                double lng = location.getDouble("lng");
-                                String name = result.getString("name");
-
-                                mMap.addMarker(new MarkerOptions()
-                                        .position(new LatLng(lat, lng))
-                                        .title(name));
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.e("Places API", "Error fetching nearby skin clinics", error);
-                    }
-                });
-
-                // 병렬 요청을 위해 requestQueue에 request 추가
-                requestQueue.add(request);
-            }
-        }
-    }
-
-    @Override
-    public boolean onMarkerClick(final Marker marker) {
-        db.collection("bookmark_places")
-                .document(marker.getTitle())
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
-                            if (document.exists()) {
-                                // 이미 북마크된 장소인 경우, 대화상자에 '북마크 삭제' 옵션을 추가합니다.
-                                showAlertDialog(marker, true);
-                                // 선택된 북마크된 장소의 마커를 노란색으로 유지합니다.
-                                changeMarkerColor(marker, BitmapDescriptorFactory.HUE_YELLOW);
-                            } else {
-                                // 아직 북마크되지 않은 장소인 경우, 대화상자에 '북마크 추가' 옵션만 있습니다.
-                                showAlertDialog(marker, false);
-                            }
-                        } else {
-                            Log.d(TAG, "get failed with ", task.getException());
-                        }
-                    }
-                });
-        return false;
-    }
-
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -330,9 +249,102 @@ public class AcneClinicRecommendationOnGoogleMapActivity extends AppCompatActivi
         });
     }
 
+    private void fetchNearbySkinClinics(LatLng userLocation) {
+        // Places API 초기화
+        Places.initialize(getApplicationContext(), getString(R.string.google_maps_key));
+        PlacesClient placesClient = Places.createClient(this);
+
+        // 검색 반경 설정
+        int radius = 5000; // 5km 반경 내 피부과 검색
+        String[] placeTypes = {"doctor"};
+        String[] keywords = {"피부", "피부과", "피부 클리닉", "여드름 치료", "여드름 흉터치료"};
+        String locationString = userLocation.latitude + "," + userLocation.longitude;
+
+        // RequestQueue 생성
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+        // 중복된 마커를 추적하기 위한 HashSet
+        Set<String> addedClinics = new HashSet<>();
+
+        // 모든 placeType과 키워드에 대해 요청 수행
+        for (String placeType : placeTypes) {
+            for (String keyword : keywords) {
+                String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + locationString + "&radius=" + radius + "&type=" + placeType + "&keyword=" + keyword + "&key=" + getString(R.string.google_maps_key);
+
+                // 사용자 위치를 기반으로 피부과 검색
+                JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            JSONArray results = response.getJSONArray("results");
+                            for (int i = 0; i < results.length(); i++) {
+                                JSONObject result = results.getJSONObject(i);
+                                JSONObject geometry = result.getJSONObject("geometry");
+                                JSONObject location = geometry.getJSONObject("location");
+                                double lat = location.getDouble("lat");
+                                double lng = location.getDouble("lng");
+                                String name = result.getString("name");
+
+                                // 중복된 마커를 제거하기 위해 이름과 위치를 기반으로 키 생성
+                                String uniqueKey = name + "-" + lat + "-" + lng;
+
+                                if (!addedClinics.contains(uniqueKey)) {
+                                    mMap.addMarker(new MarkerOptions()
+                                            .position(new LatLng(lat, lng))
+                                            .title(name));
+                                    addedClinics.add(uniqueKey);
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("Places API", "Error fetching nearby skin clinics", error);
+                    }
+                });
+
+                // 병렬 요청을 위해 requestQueue에 request 추가
+                requestQueue.add(request);
+            }
+        }
+    }
+
+    private void changeMarkerToCustomIcon(Marker marker) {
+        BitmapDescriptor customIcon = BitmapDescriptorFactory.fromResource(R.drawable.icon_favorite);
+        marker.setIcon(customIcon);
+    }
+
+    @Override
+    public boolean onMarkerClick(final Marker marker) {
+        db.collection("bookmark_places")
+                .document(marker.getTitle())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                // 이미 북마크된 장소인 경우, 대화상자에 '북마크 삭제' 옵션을 추가합니다.
+                                showAlertDialog(marker, true);
+                                // 선택된 북마크된 장소의 마커를 사용자 정의 아이콘으로 변경합니다.
+                                changeMarkerToCustomIcon(marker);
+                            } else {
+                                // 아직 북마크되지 않은 장소인 경우, 대화상자에 '북마크 추가' 옵션만 있습니다.
+                                showAlertDialog(marker, false);
+                            }
+                        } else {
+                            Log.d(TAG, "get failed with ", task.getException());
+                        }
+                    }
+                });
+        return false;
+    }
 
     private void fetchBookmarkedPlaces() {
-        // Firestore에서 북마크된 장소를 가져와서 노란색 마커로 표시하는 코드 작성
         db.collection("bookmark_places")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -344,15 +356,16 @@ public class AcneClinicRecommendationOnGoogleMapActivity extends AppCompatActivi
                                 double longitude = document.getDouble("longitude");
                                 String name = document.getString("name");
 
-                                // 각 북마크된 장소를 지도에 노란색 마커로 추가합니다.
+                                // 사용자 정의 아이콘을 비트맵으로 가져옵니다.
+                                BitmapDescriptor customIcon = BitmapDescriptorFactory.fromResource(R.drawable.icon_favorite);
+
+                                // 각 북마크된 장소를 지도에 사용자 정의 아이콘 마커로 추가합니다.
                                 MarkerOptions options = new MarkerOptions();
                                 options.position(new LatLng(latitude, longitude));
                                 options.title(name);
-                                options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
+                                options.icon(customIcon); // 사용자 정의 아이콘 설정
                                 Marker marker = mMap.addMarker(options);
-                                // 마커에 고유한 ID를 설정합니다.
                                 marker.setTag(name);
-                                // markerMap에도 추가합니다.
                                 markerMap.put(name, marker);
                             }
                         } else {
@@ -361,7 +374,6 @@ public class AcneClinicRecommendationOnGoogleMapActivity extends AppCompatActivi
                     }
                 });
     }
-
 
     private void showAlertDialog(final Marker marker, boolean isBookmarked) {
         // 대화상자를 만듭니다.

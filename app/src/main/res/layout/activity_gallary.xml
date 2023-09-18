@@ -36,7 +36,7 @@
         android:id="@+id/treatBtn"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="자세한 처치법 보러가기"
+        android:text="관리법 보러가기"
         android:textSize="12sp"
         app:layout_constraintWidth_percent="0.4"
         app:layout_constraintTop_toBottomOf="@+id/imageView"
